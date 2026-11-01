@@ -3,6 +3,9 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // Domínio definitivo ainda não existe ([PREENCHER] na Etapa 3). SITE_URL no build tem prioridade.
 const site = process.env.SITE_URL || 'https://nossahamburgueria.example';
+// Subpasta onde o site é servido. No GitHub Pages de projeto é "/Hamburguer" (o workflow
+// passa BASE_PATH); local, nos testes e no Cloudflare, fica na raiz.
+const base = process.env.BASE_PATH || '/';
 
 /** Caminho de uma fonte local (subconjunto latin, que cobre o português). */
 /** @param {string} nome */
@@ -10,6 +13,7 @@ const arquivo = (nome) => `./src/assets/fonts/${nome}`;
 
 export default defineConfig({
   site,
+  base,
   output: 'static',
   trailingSlash: 'ignore',
   build: {

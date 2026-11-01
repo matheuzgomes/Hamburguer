@@ -6,6 +6,7 @@
 import { Font } from 'astro:assets';
 import DadosCardapio from '../components/DadosCardapio.astro';
 import { loja } from '../data/loja';
+import { caminho } from '../lib/caminho';
 
 type Fonte = '--font-ombros' | '--font-ultra' | '--font-schibsted' | '--font-fragment' | '--font-bagel';
 
@@ -40,8 +41,8 @@ const {
     {fontes.map((f) => <Font cssVariable={f.variavel} preload={f.preload} />)}
     <meta name="theme-color" content={corTema} />
     <meta name="format-detection" content="telephone=no" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={caminho("favicon.svg")} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={caminho("apple-touch-icon.png")} />
     <slot name="head" />
   </head>
   <body>

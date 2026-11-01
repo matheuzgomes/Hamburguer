@@ -1,0 +1,56 @@
+# Publica no GitHub Pages o site já construído pelo Astro (a pasta dist/).
+# Requer em Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# (No modo "Deploy from a branch" o GitHub roda o Jekyll no código-fonte, e o Jekyll
+# tenta ler o "---" dos arquivos .astro como YAML e quebra.)
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicação por vez; a mais nova não cancela a que já está no ar.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - id: pages
+        uses: actions/configure-pages@v6
+
+      - run: npm ci
+
+      # O Pages de projeto serve em /<repo>/: o Astro precisa saber a base e o endereço.
+      - run: npm run build
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

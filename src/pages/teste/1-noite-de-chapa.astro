@@ -23,6 +23,7 @@ import { urlWhatsApp } from '../../lib/whatsapp';
 import logo from '../../assets/marca/logo.svg?url';
 import logoTraco from '../../assets/marca/logo-traco.svg?url';
 import grao from '../../assets/textura/grao.webp';
+import { caminho } from '../../lib/caminho';
 
 const campeao = porSlug.get('combo-duplo-smash-bacon')!;
 const subtitulos: Record<Grupo, string> = {
@@ -157,7 +158,7 @@ const whatsappSimples = urlWhatsApp(loja.whatsapp, 'Oi, Nossa! Quero fazer um pe
         <button type="button" data-compartilhar><Icone nome="compartilhar" tamanho={20} /> Manda pra quem vai dividir</button>
       </li>
     </ul>
-    <p class="fino">Layout de teste 1 de 4 · <a href="/">ver os outros</a></p>
+    <p class="fino">Layout de teste 1 de 4 · <a href={caminho()}>ver os outros</a></p>
   </footer>
 
   <Barra />

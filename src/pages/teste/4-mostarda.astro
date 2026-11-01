@@ -24,6 +24,7 @@ import { preco } from '../../lib/dinheiro';
 import { urlWhatsApp } from '../../lib/whatsapp';
 import icone from '../../assets/marca/icone.svg?url';
 import logoTraco from '../../assets/marca/logo-traco.svg?url';
+import { caminho } from '../../lib/caminho';
 
 const titulos: Record<Grupo, string> = {
   'so-eu': 'Só pra mim',
@@ -205,7 +206,7 @@ const whatsappSimples = urlWhatsApp(loja.whatsapp, 'Oi, Nossa! Quero fazer um pe
       <li><a href={loja.instagramUrl} target="_blank" rel="noopener"><Icone nome="instagram" tamanho={20} /> @{loja.instagram}</a></li>
       <li><button type="button" data-compartilhar><Icone nome="compartilhar" tamanho={20} /> Manda pra quem vai dividir</button></li>
     </ul>
-    <p class="fino">{loja.slogan}. {loja.horario.texto}. Layout de teste 4 de 4 · <a href="/">ver os outros</a></p>
+    <p class="fino">{loja.slogan}. {loja.horario.texto}. Layout de teste 4 de 4 · <a href={caminho()}>ver os outros</a></p>
   </footer>
 
   <Barra />
