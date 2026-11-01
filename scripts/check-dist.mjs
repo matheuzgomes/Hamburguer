@@ -31,7 +31,12 @@ function paginas(pasta) {
 }
 
 const gz = (caminho) => gzipSync(readFileSync(caminho), { level: 9 }).length;
-const arquivoDe = (url) => join(DIST, decodeURIComponent(url.split(/[?#]/)[0]));
+// URLs carry the site base (e.g. "/Hamburguer/_astro/x.js" on GitHub Pages); dist/ does not.
+const BASE = (process.env.BASE_PATH || '/').replace(/\/?$/, '/');
+const arquivoDe = (url) => {
+  const urlPath = decodeURIComponent(url.split(/[?#]/)[0]);
+  return join(DIST, urlPath.startsWith(BASE) ? urlPath.slice(BASE.length - 1) : urlPath);
+};
 
 /** Soma o gzip de um módulo e de tudo o que ele importa estaticamente (sem contar duas vezes). */
 function grafoJs(entradas) {

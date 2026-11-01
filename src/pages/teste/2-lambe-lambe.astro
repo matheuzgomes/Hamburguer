@@ -22,7 +22,7 @@ import { meioTom } from '../../lib/meio-tom';
 import { urlWhatsApp } from '../../lib/whatsapp';
 import logo from '../../assets/marca/logo.svg?url';
 import grao from '../../assets/textura/grao.webp';
-import { caminho } from '../../lib/caminho';
+import { withBase } from '../../lib/with-base';
 
 const campeao = porSlug.get('combo-duplo-smash-bacon')!;
 const abertura = meioTom('abertura');
@@ -190,7 +190,7 @@ const frases = [
             <button type="button" data-compartilhar><Icone nome="compartilhar" tamanho={20} /> Cola esse cartaz no grupo</button>
           </li>
         </ul>
-        <p class="fino">Layout de teste 2 de 4 · <a href={caminho()}>ver os outros</a></p>
+        <p class="fino">Layout de teste 2 de 4 · <a href={withBase()}>ver os outros</a></p>
       </div>
     </footer>
   </div>

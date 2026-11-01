@@ -6,7 +6,7 @@
 import { Font } from 'astro:assets';
 import DadosCardapio from '../components/DadosCardapio.astro';
 import { loja } from '../data/loja';
-import { caminho } from '../lib/caminho';
+import { withBase } from '../lib/with-base';
 
 type Fonte = '--font-ombros' | '--font-ultra' | '--font-schibsted' | '--font-fragment' | '--font-bagel';
 
@@ -35,14 +35,19 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Same policy as public/_headers, for hosts that ignore it (GitHub Pages). -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+    />
     <title>{titulo}</title>
     <meta name="description" content={descricao} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {fontes.map((f) => <Font cssVariable={f.variavel} preload={f.preload} />)}
     <meta name="theme-color" content={corTema} />
     <meta name="format-detection" content="telephone=no" />
-    <link rel="icon" href={caminho("favicon.svg")} type="image/svg+xml" />
-    <link rel="apple-touch-icon" href={caminho("apple-touch-icon.png")} />
+    <link rel="icon" href={withBase("favicon.svg")} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase("apple-touch-icon.png")} />
     <slot name="head" />
   </head>
   <body>

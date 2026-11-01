@@ -3,8 +3,8 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // Domínio definitivo ainda não existe ([PREENCHER] na Etapa 3). SITE_URL no build tem prioridade.
 const site = process.env.SITE_URL || 'https://nossahamburgueria.example';
-// Subpasta onde o site é servido. No GitHub Pages de projeto é "/Hamburguer" (o workflow
-// passa BASE_PATH); local, nos testes e no Cloudflare, fica na raiz.
+// Sub-path the site is served from. On a GitHub Pages project site it is "/Hamburguer"
+// (the workflow passes BASE_PATH); locally, in tests and on Cloudflare it stays at the root.
 const base = process.env.BASE_PATH || '/';
 
 /** Caminho de uma fonte local (subconjunto latin, que cobre o português). */

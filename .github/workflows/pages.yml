@@ -1,7 +1,7 @@
-# Publica no GitHub Pages o site já construído pelo Astro (a pasta dist/).
-# Requer em Settings → Pages → Build and deployment → Source: "GitHub Actions".
-# (No modo "Deploy from a branch" o GitHub roda o Jekyll no código-fonte, e o Jekyll
-# tenta ler o "---" dos arquivos .astro como YAML e quebra.)
+# Publishes the site built by Astro (the dist/ folder) to GitHub Pages.
+# Requires Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# ("Deploy from a branch" runs Jekyll on the source, which reads the "---" fence of
+# .astro files as YAML front matter and fails.)
 name: Pages
 
 on:
@@ -9,12 +9,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Least privilege: the build job (which runs third-party install scripts) can only read;
+# only the deploy job may publish.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Uma publicação por vez; a mais nova não cancela a que já está no ar.
+# One deployment at a time; a newer run does not cancel the one in progress.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -35,10 +35,15 @@ jobs:
 
       - run: npm ci
 
-      # O Pages de projeto serve em /<repo>/: o Astro precisa saber a base e o endereço.
+      # Project Pages are served from /<repo>/: Astro needs the base path and the origin.
       - run: npm run build
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      # Budget and safety checks on what actually ships (JS size, fonts, no inline scripts).
+      - run: npm run check:dist
+        env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - uses: actions/upload-pages-artifact@v5
@@ -48,6 +53,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

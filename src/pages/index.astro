@@ -7,7 +7,7 @@
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { caminho } from '../lib/caminho';
+import { withBase } from '../lib/with-base';
 
 const prints = import.meta.glob<{ default: ImageMetadata }>('../assets/comparativo/*.webp', { eager: true });
 const print = (layout: string, nome: string) => prints[`../assets/comparativo/${layout}-${nome}.webp`]!.default;
@@ -156,10 +156,15 @@ const comuns = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Same policy as public/_headers, for hosts that ignore it (GitHub Pages). -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+    />
     <title>Nossa Hamburgueria · os 4 layouts de teste</title>
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#f6f6f4" />
-    <link rel="icon" href={caminho("favicon.svg")} type="image/svg+xml" />
+    <link rel="icon" href={withBase("favicon.svg")} type="image/svg+xml" />
   </head>
   <body>
     <header class="topo">
@@ -173,7 +178,7 @@ const comuns = [
         {
           layouts.map((l) => (
             <li>
-              <a href={caminho(`teste/${l.slug}/`)}>
+              <a href={withBase(`teste/${l.slug}/`)}>
                 <span class="num">{l.numero}</span>
                 <span>
                   <strong>{l.nome}</strong>
@@ -221,7 +226,7 @@ const comuns = [
                 <span class="num">{l.numero}</span> {l.nome}
               </h2>
               <p>{l.frase}</p>
-              <a class="abrir" href={caminho(`teste/${l.slug}/`)}>Abrir o layout {l.numero}</a>
+              <a class="abrir" href={withBase(`teste/${l.slug}/`)}>Abrir o layout {l.numero}</a>
             </div>
             <div class="prints">
               <figure class="print-celular">
