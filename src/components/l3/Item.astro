@@ -1,0 +1,37 @@
+---
+/** Uma linha da lista densa (layout 3): miniatura, nome, composição, preço e "+". Filtrável. */
+import Foto from '../Foto.astro';
+import Icone from '../Icone.astro';
+import Acao from '../comum/Acao.astro';
+import { nomeCurto, nomesDestaques, nomesEtiquetas, resumo, type Item } from '../../data/cardapio';
+import { preco } from '../../lib/dinheiro';
+import { normalizar } from '../../lib/texto';
+
+interface Props {
+  item: Item;
+}
+
+const { item } = Astro.props;
+const nome = nomeCurto(item);
+const comp = item.grupo === 'so-eu' && item.lanche ? item.lanche.composicao : resumo(item);
+const texto = normalizar([item.nome, comp, ...item.acompanha, ...item.etiquetas.map((e) => nomesEtiquetas[e])].join(' '));
+---
+
+<li class="item" id={item.slug} data-item={item.slug} data-filtravel data-texto={texto} data-etiquetas={item.etiquetas.join(' ')}>
+  <Foto nome={item.foto} alt={item.alt} larguras={[112, 224, 336]} sizes="(min-width: 64rem) 7rem, 5.5rem" class="item-foto" />
+  <div class="item-texto">
+    <h3>
+      {nome}
+      {item.destaque && <span class:list={['marca', `marca-${item.destaque}`]}>{nomesDestaques[item.destaque]}</span>}
+    </h3>
+    {item.pessoas > 1 && <p class="serve">Serve {item.pessoas}</p>}
+    <p class="comp">{comp}</p>
+  </div>
+  <div class="item-acoes">
+    <p class="item-preco">{preco(item.preco)}</p>
+    <Acao item={item} />
+    <button type="button" class="compartilhar" data-compartilhar={`item:${item.slug}`} aria-label={`Mandar o ${nome} pra alguém`}>
+      <Icone nome="compartilhar" tamanho={18} />
+    </button>
+  </div>
+</li>

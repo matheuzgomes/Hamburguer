@@ -1,0 +1,1851 @@
+---
+/**
+ * Layout de teste 4 — Mostarda.
+ * Cena: sábado à noite, o grupo de amigos decide onde pedir e alguém manda o link. A cor da
+ * marca vira a página inteira (drenched), com tinta preta e creme. Uma ideia por tela: o lanche
+ * desmontado, o "Qual é o seu?", o cardápio que se filtra por ingrediente e a rota até a sua casa.
+ */
+import Base from '../../layouts/Base.astro';
+import Foto from '../../components/Foto.astro';
+import Icone from '../../components/Icone.astro';
+import Acao from '../../components/comum/Acao.astro';
+import Bairros from '../../components/comum/Bairros.astro';
+import Barra from '../../components/comum/Barra.astro';
+import Fatos from '../../components/comum/Fatos.astro';
+import Perguntas from '../../components/comum/Perguntas.astro';
+import Sacola from '../../components/comum/Sacola.astro';
+import Montagem from '../../components/l4/Montagem.astro';
+import Produto from '../../components/l4/Produto.astro';
+import Rota from '../../components/l4/Rota.astro';
+import { doGrupo, grupos, nomeCurto, nomesEtiquetas, type Destaque, type Etiqueta, type Grupo } from '../../data/cardapio';
+import { loja } from '../../data/loja';
+import { provas } from '../../data/textos';
+import { preco } from '../../lib/dinheiro';
+import { urlWhatsApp } from '../../lib/whatsapp';
+import icone from '../../assets/marca/icone.svg?url';
+import logoTraco from '../../assets/marca/logo-traco.svg?url';
+
+const titulos: Record<Grupo, string> = {
+  'so-eu': 'Só pra mim',
+  'a-dois': 'A dois',
+  familia: 'Pra galera',
+  extras: 'Pra beliscar',
+};
+const subtitulos: Record<Grupo, string> = {
+  'so-eu': 'Todo combo vem com batata frita e Coca-Cola lata.',
+  'a-dois': 'Dois lanches e refri grande. Dividir é opcional.',
+  familia: 'Três ou quatro lanches, batatas e Coca-Cola 1,5 L.',
+  extras: 'Pra completar ou pra quem jura que não está com fome.',
+};
+const secoes = grupos.map((g) => ({ ...g, itens: doGrupo(g.id) }));
+
+// "Qual é o seu?": só os combos individuais concorrem; desempata o destaque e depois o preço.
+const opcoesQuiz: { etiqueta: Etiqueta; nome: string }[] = [
+  { etiqueta: 'bacon', nome: 'Bacon' },
+  { etiqueta: 'cheddar', nome: 'Cheddar' },
+  { etiqueta: 'catupiry', nome: 'Catupiry' },
+  { etiqueta: 'cebola-caramelizada', nome: 'Cebola caramelizada' },
+  { etiqueta: 'salada', nome: 'Salada' },
+  { etiqueta: 'frango', nome: 'Frango' },
+  { etiqueta: 'smash', nome: 'Smash fininho' },
+  { etiqueta: 'artesanal', nome: 'Blend alto 150 g' },
+];
+const peso: Record<Destaque, number> = { campeao: 0, 'mais-pedido': 1, novo: 2 };
+const candidatos = [...doGrupo('so-eu')].sort(
+  (a, b) => (a.destaque ? peso[a.destaque] : 3) - (b.destaque ? peso[b.destaque] : 3) || a.preco - b.preco,
+);
+const filtros: Etiqueta[] = ['bacon', 'cheddar', 'catupiry', 'frango', 'salada'];
+const whatsappSimples = urlWhatsApp(loja.whatsapp, 'Oi, Nossa! Quero fazer um pedido.');
+---
+
+<Base titulo="Nossa Hamburgueria · Mostarda (teste 4)" fontes={[{ variavel: '--font-bagel', preload: true }]} corTema="#e5b13a" esquema="light">
+  <header class="topo">
+    <a class="marca-topo" href="#cardapio">
+      <img src={icone} alt="" width="34" height="29" />
+      <span>Nossa<br />Hamburgueria</span>
+    </a>
+    <p class="status"><span class="ponto" aria-hidden="true"></span><span data-status-loja>{loja.horario.texto}</span></p>
+  </header>
+
+  <section class="abertura" aria-labelledby="t-abertura">
+    <div class="abertura-texto">
+      <h1 id="t-abertura">Da nossa chapa direto pra sua casa</h1>
+      <p class="sub">
+        Blend moído aqui. {loja.entrega.gratisNosBairros ? 'Entrega grátis' : 'Entrega'} em {loja.bairroBase} e vizinhança, {loja.entrega.tempo}.
+      </p>
+      <div class="acoes">
+        <a class="botao botao-cheio" href="#cardapio">Ver o cardápio</a>
+        <a class="botao botao-linha" href="#qual-e-o-seu">Qual é o seu?</a>
+      </div>
+    </div>
+    <Montagem />
+  </section>
+
+  <section class="quiz" id="qual-e-o-seu" aria-labelledby="t-quiz">
+    <div class="quiz-cabeca">
+      <h2 id="t-quiz">Qual é o seu?</h2>
+      <p>Marca até 3 coisas que não podem faltar. A gente acha o lanche.</p>
+    </div>
+    <fieldset class="quiz-opcoes">
+      <legend class="sr-only">O que não pode faltar (até 3)</legend>
+      {
+        opcoesQuiz.map((o) => (
+          <label class="opcao">
+            <input type="checkbox" value={o.etiqueta} data-quiz-opcao data-nome={o.nome} />
+            <span>{o.nome}</span>
+          </label>
+        ))
+      }
+    </fieldset>
+    <p class="quiz-status" data-quiz-status aria-live="polite"></p>
+    <div class="quiz-resultado">
+      <p class="quiz-vazio" data-quiz-vazio>Seu lanche aparece aqui.</p>
+      {
+        candidatos.map((item, ordem) => (
+          <article
+            class="resultado"
+            data-quiz-resultado
+            data-item={item.slug}
+            data-etiquetas={item.etiquetas.join(' ')}
+            data-ordem={ordem}
+            data-nome={nomeCurto(item)}
+            aria-label={`Resultado: ${nomeCurto(item)}`}
+            hidden
+          >
+            <div class="adesivo adesivo-grande">
+              <Foto nome={item.foto} alt={item.alt} larguras={[160, 320]} sizes="(min-width: 48rem) 12rem, 9rem" class="adesivo-foto" />
+            </div>
+            <div class="resultado-texto">
+              <div class="resultado-cabeca">
+                <p class="resultado-deu">Deu</p>
+                <h3>{nomeCurto(item)}</h3>
+              </div>
+              <p class="comp">{item.lanche?.composicao}</p>
+              <div class="produto-pe">
+                <p class="produto-preco">{preco(item.preco)}</p>
+                <Acao item={item} />
+              </div>
+              <button type="button" class="botao-texto" data-compartilhar={`quiz:${item.slug}`}>
+                <Icone nome="compartilhar" tamanho={18} /> Mandar pro grupo e ver o deles
+              </button>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <main id="cardapio" class="cardapio" aria-labelledby="t-cardapio">
+    <div class="cardapio-cabeca">
+      <h2 id="t-cardapio">Tudo que sai da chapa</h2>
+      <div class="filtros" role="group" aria-label="Mostrar só os que têm">
+        <span class="filtros-rotulo" aria-hidden="true">Só com:</span>
+        {
+          filtros.map((e) => (
+            <button type="button" class="filtro" data-filtro-etiqueta={e} data-filtro-nome={nomesEtiquetas[e]} aria-pressed="false">
+              {nomesEtiquetas[e]}
+            </button>
+          ))
+        }
+      </div>
+      <p class="contagem">
+        <span data-filtro-contagem aria-live="polite"></span>
+        <button type="button" class="limpar" data-filtro-limpar hidden>Mostrar tudo</button>
+      </p>
+    </div>
+    <nav class="abas" aria-label="Cardápio por quantidade de pessoas">
+      {secoes.map((s) => <a href={`#${s.id}`} data-aba={s.id}>{titulos[s.id]}</a>)}
+    </nav>
+    {
+      secoes.map((s) => (
+        <section class="grupo" id={s.id} data-filtro-grupo aria-labelledby={`t-${s.id}`}>
+          <div class="grupo-cabeca">
+            <h2 id={`t-${s.id}`}>{titulos[s.id]}</h2>
+            <p>{subtitulos[s.id]}</p>
+          </div>
+          <ul class="produtos">
+            {s.itens.map((item, i) => (
+              <Produto item={item} indice={i} />
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </main>
+
+  <section class="entrega" id="entrega" aria-labelledby="t-entrega">
+    <div class="entrega-texto">
+      <h2 id="t-entrega">Daqui até a sua casa</h2>
+      <Bairros legenda="Escolhe o seu bairro e vê a rota" />
+      <Fatos />
+    </div>
+    <Rota />
+  </section>
+
+  <section class="prova" aria-labelledby="t-prova">
+    <div class="adesivo adesivo-prova">
+      <Foto nome="ig-moedor" alt="Carne saindo do moedor na cozinha da Nossa" larguras={[200, 306]} sizes="(min-width: 48rem) 15rem, 11rem" class="adesivo-foto" />
+    </div>
+    <div>
+      <h2 id="t-prova">A carne é moída aqui.</h2>
+      <p>{provas.blend} {provas.sal}</p>
+      <p class="seguidores"><strong>{loja.seguidores}</strong> pessoas acompanham a chapa no Instagram.</p>
+    </div>
+  </section>
+
+  <section class="perguntas" aria-labelledby="t-perguntas">
+    <h2 id="t-perguntas">Antes de pedir</h2>
+    <Perguntas />
+  </section>
+
+  <footer class="rodape">
+    <img src={logoTraco} alt="Nossa Hamburgueria Artesanal" width="88" height="103" loading="lazy" />
+    <ul>
+      <li><a href={whatsappSimples} data-enviar target="_blank" rel="noopener"><Icone nome="whatsapp" tamanho={20} /> {loja.whatsappExibicao}</a></li>
+      <li><a href={loja.instagramUrl} target="_blank" rel="noopener"><Icone nome="instagram" tamanho={20} /> @{loja.instagram}</a></li>
+      <li><button type="button" data-compartilhar><Icone nome="compartilhar" tamanho={20} /> Manda pra quem vai dividir</button></li>
+    </ul>
+    <p class="fino">{loja.slogan}. {loja.horario.texto}. Layout de teste 4 de 4 · <a href="/">ver os outros</a></p>
+  </footer>
+
+  <Barra />
+  <Sacola titulo="Sua sacola" />
+
+  <script src="../../scripts/trilhas.ts"></script>
+  <script src="../../scripts/filtro.ts"></script>
+  <script src="../../scripts/quiz.ts"></script>
+</Base>
+
+<style is:global>
+  @property --abre {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+  }
+
+  :root {
+    --mostarda: oklch(0.81 0.155 80);
+    --mostarda-funda: oklch(0.74 0.15 74);
+    --creme: oklch(0.96 0.035 92);
+    --tinta: oklch(0.2 0.02 55);
+    --tinta-2: oklch(0.3 0.035 60);
+    --display: var(--font-bagel);
+    --corpo: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --margem: max(1rem, calc((100vw - 72rem) / 2));
+    --traco: 2.5px;
+    --sai: cubic-bezier(0.22, 1, 0.36, 1);
+    --z-abas: 10;
+    --z-barra: 20;
+    --z-aviso: 30;
+    scroll-padding-top: 4.5rem;
+    scroll-behavior: smooth;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  body {
+    background: var(--mostarda);
+    color: var(--tinta);
+    font: 400 1rem/1.5 var(--corpo);
+    overflow-x: clip;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--tinta);
+    outline-offset: 3px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+
+  /* ---------- Botões ---------- */
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    font-family: var(--display);
+    font-size: 1.0625rem;
+    text-decoration: none;
+    transition:
+      background-color 0.15s,
+      color 0.15s,
+      scale 0.15s var(--sai);
+  }
+
+  .botao:active {
+    scale: 0.97;
+  }
+
+  .botao svg,
+  .botao-add svg,
+  .barra-botao svg,
+  .botao-texto svg {
+    flex: none;
+  }
+
+  .botao-cheio {
+    background: var(--tinta);
+    color: var(--creme);
+  }
+
+  .botao-cheio:hover {
+    background: oklch(0.32 0.03 55);
+  }
+
+  .botao-linha {
+    border: var(--traco) solid var(--tinta);
+  }
+
+  .botao-linha:hover {
+    background: var(--tinta);
+    color: var(--mostarda);
+  }
+
+  .botao-texto {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  /* ---------- Topo ---------- */
+  .topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem var(--margem);
+  }
+
+  .marca-topo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--display);
+    font-size: 0.9375rem;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .marca-topo img {
+    width: 2.25rem;
+    height: auto;
+    padding: 0.3rem;
+    border-radius: 50%;
+    background: var(--tinta);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.8rem;
+    border: var(--traco) solid var(--tinta);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .ponto {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    border: 2px solid var(--tinta);
+  }
+
+  [data-loja='aberta'] .ponto {
+    background: var(--tinta);
+  }
+
+  /* ---------- Abertura: o lanche desmontado ---------- */
+  .abertura {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1.25rem var(--margem) 3rem;
+  }
+
+  .abertura h1 {
+    font-size: clamp(2.35rem, 10.4vw, 5.25rem);
+    letter-spacing: -0.01em;
+  }
+
+  .sub {
+    max-width: 34ch;
+    margin-top: 1.1rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    text-wrap: pretty;
+  }
+
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+
+  .montagem {
+    --abre: 1.1rem;
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+  }
+
+  .camadas {
+    list-style: none;
+    display: grid;
+    gap: 0.22rem;
+    width: 100%;
+    max-width: 24rem;
+    padding: calc(3 * 1.1rem) 0;
+  }
+
+  /* A legenda fica fora do fluxo: a altura de cada linha é só a da camada, e montado o
+     lanche fecha sem vão. A legenda centraliza na camada e transborda igual pros dois lados. */
+  .camada {
+    position: relative;
+    width: 9.5rem;
+    translate: 0 calc(var(--i) * var(--abre));
+  }
+
+  .fatia {
+    width: 100%;
+    height: auto;
+    color: var(--tinta);
+  }
+
+  .camada-rotulo {
+    position: absolute;
+    inset-block: 0;
+    left: calc(100% + 0.9rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: max-content;
+    max-width: 11.5rem;
+    padding-left: 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.25;
+  }
+
+  /* O fiozinho da legenda até a camada, como nas folhas técnicas. */
+  .camada-rotulo::before {
+    content: '';
+    position: absolute;
+    left: -0.6rem;
+    top: 50%;
+    width: 1.2rem;
+    border-top: 1.5px solid var(--tinta);
+  }
+
+  .camada-rotulo strong {
+    display: block;
+    font-size: 0.9375rem;
+  }
+
+  /* Sobe junto quando as camadas fecham, sem deixar o vão reservado pro lanche aberto. */
+  .montagem-pe {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1rem;
+    translate: 0 calc((var(--abre) - 1.1rem) * 3);
+  }
+
+  .montagem-nome {
+    width: 100%;
+    font-family: var(--display);
+    font-size: 1.35rem;
+  }
+
+  .montagem-preco {
+    font-weight: 700;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      /* As legendas saem primeiro (até 16vh); as camadas descem depois (10vh a 50vh),
+         então nenhuma legenda encosta na outra no meio do caminho.
+         A linha do tempo fica numa regra à parte (seletor mais forte): o minificador junta
+         animation-timeline dentro do atalho "animation", que o navegador então descarta. */
+      .montagem {
+        animation: monta linear both;
+      }
+
+      .abertura .montagem {
+        animation-timeline: scroll(root);
+        animation-range: 10vh 50vh;
+      }
+
+      .camada-rotulo {
+        animation: some linear both;
+      }
+
+      .camada .camada-rotulo {
+        animation-timeline: scroll(root);
+        animation-range: 2vh 16vh;
+      }
+
+      @keyframes monta {
+        to {
+          --abre: 0px;
+        }
+      }
+
+      @keyframes some {
+        to {
+          opacity: 0;
+          translate: -0.5rem 0;
+        }
+      }
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .abertura {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: center;
+      column-gap: 3rem;
+      padding-block: 2rem 4rem;
+    }
+
+    .camada {
+      width: 14rem;
+    }
+
+    .camada-rotulo {
+      max-width: 14rem;
+    }
+
+    .camadas {
+      max-width: 28rem;
+    }
+  }
+
+  /* ---------- Adesivo: a foto recortada em círculo ---------- */
+  .adesivo {
+    flex: none;
+    width: 6.5rem;
+    transition: rotate 0.35s var(--sai);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 0.3rem solid var(--creme);
+    outline: var(--traco) solid var(--tinta);
+    overflow: hidden;
+    rotate: var(--giro, -3deg);
+    background: var(--tinta);
+  }
+
+  .adesivo-foto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .adesivo-grande {
+    width: 9rem;
+  }
+
+  @media (min-width: 64rem) {
+    .adesivo {
+      width: 9rem;
+    }
+
+    .adesivo-grande {
+      width: 12rem;
+    }
+  }
+
+  /* ---------- Qual é o seu? ---------- */
+  .quiz {
+    display: grid;
+    gap: 1.25rem;
+    padding: 3rem var(--margem);
+    background: var(--tinta);
+    color: var(--creme);
+  }
+
+  .quiz h2 {
+    font-size: clamp(2.5rem, 12vw, 5rem);
+    color: var(--mostarda);
+  }
+
+  .quiz-cabeca p {
+    margin-top: 0.5rem;
+    max-width: 36ch;
+    font-size: 1.0625rem;
+  }
+
+  .quiz-opcoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .opcao {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 3rem;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    border: var(--traco) solid var(--creme);
+    font-family: var(--display);
+    font-size: 1.0625rem;
+    cursor: pointer;
+    transition:
+      background-color 0.15s,
+      color 0.15s,
+      scale 0.2s var(--sai);
+  }
+
+  .opcao:hover {
+    background: oklch(0.96 0.035 92 / 0.12);
+  }
+
+  .opcao input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .opcao:has(input:focus-visible) {
+    outline: 3px solid var(--mostarda);
+    outline-offset: 3px;
+  }
+
+  .opcao:has(input:checked) {
+    background: var(--mostarda);
+    border-color: var(--mostarda);
+    color: var(--tinta);
+  }
+
+  .opcao:has(input:checked)::before {
+    content: '✓';
+    font-family: var(--corpo);
+    font-weight: 900;
+  }
+
+  .opcao:active {
+    scale: 0.96;
+  }
+
+  .quiz-status {
+    min-height: 1.5em;
+    font-weight: 700;
+    color: var(--mostarda);
+  }
+
+  .quiz-resultado {
+    display: grid;
+  }
+
+  .quiz-vazio {
+    display: grid;
+    place-items: center;
+    min-height: 7rem;
+    border: var(--traco) dashed oklch(0.96 0.035 92 / 0.5);
+    border-radius: 1.5rem;
+    font-family: var(--display);
+    font-size: 1.25rem;
+    color: oklch(0.96 0.035 92 / 0.75);
+  }
+
+  .resultado {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 1.5rem;
+    background: var(--mostarda);
+    color: var(--tinta);
+  }
+
+  .resultado:not([hidden]) {
+    animation: carimba 0.45s var(--sai);
+  }
+
+  @keyframes carimba {
+    from {
+      scale: 0.94;
+      opacity: 0;
+    }
+  }
+
+  .resultado-deu {
+    font-weight: 800;
+  }
+
+  .resultado h3 {
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+  }
+
+  .resultado .comp {
+    margin-top: 0.4rem;
+  }
+
+  .resultado .botao-texto {
+    margin-top: 0.5rem;
+  }
+
+  /* Celular: o adesivo ao lado do nome; o resto ocupa a largura toda. */
+  @media (max-width: 30rem) {
+    .resultado {
+      grid-template-columns: auto minmax(0, 1fr);
+      row-gap: 0.25rem;
+    }
+
+    .resultado .adesivo-grande {
+      width: 6.5rem;
+    }
+
+    .resultado-texto {
+      display: contents;
+    }
+
+    .resultado-texto > :not(.resultado-cabeca) {
+      grid-column: 1 / -1;
+    }
+
+    .resultado .comp {
+      margin-top: 0.6rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .quiz {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 4rem;
+      align-items: start;
+      padding-block: 5rem;
+    }
+
+    .quiz-cabeca,
+    .quiz-opcoes,
+    .quiz-status {
+      grid-column: 1;
+    }
+
+    .quiz-resultado {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+    }
+
+    .quiz-vazio {
+      min-height: 14rem;
+    }
+  }
+
+  /* ---------- Cardápio ---------- */
+  .cardapio {
+    padding: 3rem var(--margem) 2rem;
+  }
+
+  .cardapio-cabeca h2 {
+    font-size: clamp(2.2rem, 10vw, 4.5rem);
+  }
+
+  .filtros {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 1rem calc(var(--margem) * -1) 0;
+    padding: 0.25rem var(--margem);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filtros-rotulo {
+    flex: none;
+    margin-right: 0.25rem;
+    font-weight: 800;
+  }
+
+  .filtro {
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    border: var(--traco) solid var(--tinta);
+    font-weight: 800;
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+  }
+
+  .filtro:hover {
+    background: oklch(0.2 0.02 55 / 0.1);
+  }
+
+  .filtro[aria-pressed='true'] {
+    background: var(--tinta);
+    color: var(--mostarda);
+  }
+
+  .contagem {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-weight: 800;
+  }
+
+  [data-filtrando] .contagem {
+    display: flex;
+  }
+
+  .limpar {
+    min-height: 2.75rem;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+
+  .abas {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-abas);
+    display: flex;
+    gap: 0.25rem;
+    margin: 1.25rem calc(var(--margem) * -1) 0;
+    padding: 0.5rem var(--margem);
+    background: var(--mostarda);
+    border-bottom: var(--traco) solid var(--tinta);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .abas a {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.95rem;
+    border-radius: 999px;
+    font-family: var(--display);
+    text-decoration: none;
+  }
+
+  .abas a:hover {
+    background: oklch(0.2 0.02 55 / 0.1);
+  }
+
+  .abas a[aria-current] {
+    background: var(--tinta);
+    color: var(--mostarda);
+  }
+
+  .grupo {
+    padding-top: 2.5rem;
+  }
+
+  .grupo-cabeca h2 {
+    font-size: clamp(1.9rem, 8vw, 3rem);
+  }
+
+  .grupo-cabeca p {
+    margin-top: 0.25rem;
+    font-weight: 600;
+    color: var(--tinta-2);
+  }
+
+  .produtos {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    padding: 0;
+    margin-top: 1rem;
+  }
+
+  .produto {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    gap: 0.5rem 1rem;
+    padding: 1.25rem 0;
+    border-top: var(--traco) solid var(--tinta);
+    scroll-margin-top: 5rem;
+  }
+
+  .produto:hover .adesivo {
+    rotate: 0deg;
+  }
+
+  .selo {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--mostarda);
+    font-size: 0.8125rem;
+    font-weight: 800;
+    rotate: -2deg;
+  }
+
+  .selo-novo {
+    background: var(--creme);
+    color: var(--tinta);
+    outline: 2px solid var(--tinta);
+  }
+
+  .produto h3 {
+    font-size: 1.4rem;
+  }
+
+  .serve {
+    margin-top: 0.15rem;
+    font-weight: 800;
+  }
+
+  .comp {
+    margin-top: 0.3rem;
+    max-width: 48ch;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+
+  .produto-pe {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .produto-preco {
+    margin-right: auto;
+    font-family: var(--display);
+    font-size: 1.35rem;
+    white-space: nowrap;
+  }
+
+  .produto-texto {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  /* Compartilhar fica embaixo do adesivo, onde sobra espaço. */
+  .produto .compartilhar {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: center;
+  }
+
+  .compartilhar {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+  }
+
+  .compartilhar:hover {
+    background: oklch(0.2 0.02 55 / 0.1);
+  }
+
+  .acao {
+    flex: none;
+  }
+
+  .botao-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.9rem;
+    padding: 0 1.15rem 0 0.85rem;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--creme);
+    font-family: var(--display);
+    font-size: 1rem;
+    transition:
+      background-color 0.15s,
+      scale 0.15s var(--sai);
+  }
+
+  .botao-add:hover {
+    background: oklch(0.32 0.03 55);
+  }
+
+  .botao-add:active {
+    scale: 0.96;
+  }
+
+  .qtd {
+    display: none;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--creme);
+    outline: var(--traco) solid var(--tinta);
+    outline-offset: calc(var(--traco) * -1);
+  }
+
+  .qtd button {
+    display: grid;
+    place-items: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    border-radius: 50%;
+  }
+
+  .qtd button:hover {
+    background: oklch(0.2 0.02 55 / 0.1);
+  }
+
+  .qtd output,
+  .qtd-n {
+    min-width: 1.5ch;
+    text-align: center;
+    font-family: var(--display);
+    font-size: 1.125rem;
+  }
+
+  [data-na-sacola] .botao-add {
+    display: none;
+  }
+
+  [data-na-sacola] .qtd {
+    display: inline-flex;
+  }
+
+  @media (min-width: 64rem) {
+    .produtos {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 3rem;
+    }
+
+    .produto {
+      column-gap: 1.5rem;
+    }
+
+    .grupo {
+      padding-top: 3.5rem;
+    }
+  }
+
+  /* ---------- Entrega e rota ---------- */
+  .entrega {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding: 3rem var(--margem);
+    border-top: var(--traco) solid var(--tinta);
+  }
+
+  .entrega h2,
+  .perguntas h2 {
+    font-size: clamp(2.1rem, 9vw, 3.75rem);
+    margin-bottom: 1.25rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .chips legend {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 0.6rem;
+    font-weight: 800;
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    border: var(--traco) solid var(--tinta);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .chip:hover {
+    background: oklch(0.2 0.02 55 / 0.1);
+  }
+
+  .chip input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .chip:has(input:focus-visible) {
+    outline: 3px solid var(--tinta);
+    outline-offset: 3px;
+  }
+
+  .chip:has(input:checked) {
+    background: var(--tinta);
+    color: var(--mostarda);
+  }
+
+  .resposta p {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background: var(--creme);
+    font-weight: 700;
+  }
+
+  .fatos {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 1.25rem;
+    margin-top: 1.75rem;
+  }
+
+  .fatos dt {
+    font-weight: 600;
+  }
+
+  .fatos dd {
+    font-weight: 800;
+  }
+
+  .rota {
+    display: grid;
+    gap: 0.5rem;
+    view-timeline: --rota block;
+  }
+
+  .rota svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    font-family: var(--corpo);
+  }
+
+  .rota figcaption {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .trem {
+    fill: none;
+    stroke: var(--tinta);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 5;
+    opacity: 0.55;
+  }
+
+  .trem-rotulo {
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .rota-linha {
+    --rota-cor: var(--tinta);
+    --rota-largura: 4;
+    fill: none;
+    stroke: var(--rota-cor);
+    stroke-width: var(--rota-largura);
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    transition: stroke-width 0.25s var(--sai);
+  }
+
+  /* Com um bairro escolhido, as outras rotas recuam. */
+  .entrega:has(input[data-campo='bairro']:checked) .rota-linha {
+    --rota-cor: oklch(0.2 0.02 55 / 0.25);
+  }
+
+  .parada {
+    --parada-escala: 1;
+    scale: var(--parada-escala);
+    transition: scale 0.25s var(--sai);
+  }
+
+  .parada circle {
+    fill: var(--creme);
+    stroke: var(--tinta);
+    stroke-width: 3;
+  }
+
+  /* Contorno da cor do fundo: a rota passa por trás do nome sem embolar a leitura. */
+  .parada text,
+  .chapa text,
+  .trem-rotulo {
+    font-size: 14px;
+    font-weight: 800;
+    fill: var(--tinta);
+    stroke: var(--mostarda);
+    stroke-width: 5px;
+    stroke-linejoin: round;
+    paint-order: stroke;
+  }
+
+  .chapa circle {
+    fill: var(--tinta);
+    stroke: var(--creme);
+    stroke-width: 4;
+    paint-order: stroke;
+  }
+
+  .chapa text {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 17px;
+  }
+
+  .entrega:has(input[value='Cascadura']:checked) .chapa circle {
+    stroke: var(--tinta);
+    stroke-width: 10;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rota-linha {
+        animation: desenha linear both;
+      }
+
+      .rota .rota-linha {
+        animation-timeline: --rota;
+        animation-range: entry 10% cover 45%;
+      }
+
+      @keyframes desenha {
+        from {
+          stroke-dashoffset: 1;
+        }
+      }
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .entrega {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 4rem;
+      align-items: center;
+      padding-block: 5rem;
+    }
+  }
+
+  /* ---------- Prova ---------- */
+  .prova {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: 1.75rem;
+    padding: 3.5rem var(--margem);
+    background: var(--tinta);
+    color: var(--creme);
+  }
+
+  .adesivo-prova {
+    --giro: -5deg;
+    width: 11rem;
+    outline-color: var(--mostarda);
+  }
+
+  .prova h2 {
+    font-size: clamp(2.3rem, 11vw, 4.5rem);
+    color: var(--mostarda);
+  }
+
+  .prova p {
+    max-width: 52ch;
+    margin-top: 0.9rem;
+    font-size: 1.0625rem;
+  }
+
+  .seguidores strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.35rem;
+    color: var(--mostarda);
+  }
+
+  @media (min-width: 64rem) {
+    .prova {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 4rem;
+      padding-block: 5rem;
+    }
+
+    .adesivo-prova {
+      width: 15rem;
+    }
+  }
+
+  /* ---------- Perguntas ---------- */
+  .perguntas {
+    padding: 3rem var(--margem);
+  }
+
+  .perguntas details {
+    max-width: 48rem;
+  }
+
+  details {
+    border-bottom: var(--traco) solid var(--tinta);
+  }
+
+  details:first-of-type {
+    border-top: var(--traco) solid var(--tinta);
+  }
+
+  summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.5rem;
+    font-weight: 800;
+    font-size: 1.0625rem;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: '+';
+    font-family: var(--display);
+    font-size: 1.6rem;
+    transition: rotate 0.25s var(--sai);
+  }
+
+  details[open] summary::after {
+    rotate: 45deg;
+  }
+
+  details p {
+    max-width: 60ch;
+    padding-bottom: 1rem;
+  }
+
+  /* ---------- Rodapé ---------- */
+  .rodape {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    padding: 2.5rem var(--margem) calc(2.5rem + var(--folga-barra, 0px));
+    background: var(--tinta);
+    color: var(--creme);
+  }
+
+  [data-sacola='cheia'] {
+    --folga-barra: 5rem;
+  }
+
+  .rodape > img {
+    width: 5.5rem;
+    height: auto;
+  }
+
+  .rodape ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    padding: 0;
+  }
+
+  .rodape a,
+  .rodape button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .rodape a:hover,
+  .rodape button:hover {
+    text-decoration: underline;
+  }
+
+  .rodape :focus-visible {
+    outline-color: var(--mostarda);
+  }
+
+  .fino {
+    font-size: 0.8125rem;
+    opacity: 0.85;
+  }
+
+  .fino a {
+    text-decoration: underline;
+  }
+
+  /* ---------- Barra ---------- */
+  .barra {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: var(--z-barra);
+    padding: 0 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+    pointer-events: none;
+    translate: 0 120%;
+    visibility: hidden;
+    transition:
+      translate 0.4s var(--sai),
+      visibility 0s 0.4s;
+  }
+
+  [data-sacola='cheia'] .barra {
+    translate: 0 0;
+    visibility: visible;
+    transition:
+      translate 0.4s var(--sai),
+      visibility 0s;
+  }
+
+  .barra-botao {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+    min-height: 3.75rem;
+    padding: 0 0.6rem 0 1.25rem;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--creme);
+    font-family: var(--display);
+    font-size: 1.0625rem;
+    text-align: left;
+    box-shadow: 0 0.75rem 1.5rem -0.75rem oklch(0.2 0.02 55 / 0.6);
+  }
+
+  .barra-qtd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .barra-total {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: var(--mostarda);
+    color: var(--tinta);
+  }
+
+  /* ---------- Sacola: a embalagem ---------- */
+  .sacola {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(94dvh, 50rem);
+    margin: auto 0 0;
+    padding: 0;
+    border: 0;
+    border-top: var(--traco) solid var(--tinta);
+    border-radius: 1.75rem 1.75rem 0 0;
+    background: var(--creme);
+    color: var(--tinta);
+    translate: 0 100%;
+    transition:
+      translate 0.45s var(--sai),
+      overlay 0.45s allow-discrete,
+      display 0.45s allow-discrete;
+  }
+
+  .sacola[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .sacola[open] {
+      translate: 0 100%;
+    }
+  }
+
+  .sacola::backdrop {
+    background: oklch(0.2 0.02 55 / 0);
+    transition:
+      background-color 0.45s,
+      overlay 0.45s allow-discrete,
+      display 0.45s allow-discrete;
+  }
+
+  .sacola[open]::backdrop {
+    background: oklch(0.2 0.02 55 / 0.55);
+  }
+
+  @starting-style {
+    .sacola[open]::backdrop {
+      background: oklch(0.2 0.02 55 / 0);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .sacola {
+      width: min(28rem, 100%);
+      max-height: min(92dvh, 52rem);
+      margin: auto;
+      border: var(--traco) solid var(--tinta);
+      border-radius: 1.75rem;
+      translate: 0 2rem;
+      opacity: 0;
+      transition:
+        translate 0.45s var(--sai),
+        opacity 0.3s,
+        overlay 0.45s allow-discrete,
+        display 0.45s allow-discrete;
+    }
+
+    .sacola[open] {
+      translate: 0 0;
+      opacity: 1;
+    }
+
+    @starting-style {
+      .sacola[open] {
+        translate: 0 2rem;
+        opacity: 0;
+      }
+    }
+  }
+
+  .sacola-caixa {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: inherit;
+  }
+
+  .sacola-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0.75rem 0.5rem 1.25rem;
+  }
+
+  .sacola-topo h2 {
+    font-size: 1.75rem;
+  }
+
+  .sacola-topo h2:focus {
+    outline: none;
+  }
+
+  .icone-botao {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+  }
+
+  .icone-botao:hover {
+    background: oklch(0.2 0.02 55 / 0.08);
+  }
+
+  .sacola-corpo {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    padding: 0 1.25rem 1.25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sacola-vazia {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+    padding-top: 1rem;
+  }
+
+  [data-sacola='cheia'] .sacola-vazia,
+  [data-sacola='vazia'] .sacola-pe,
+  [data-sacola='vazia'] .sacola-corpo > :not(.sacola-vazia) {
+    display: none;
+  }
+
+  .sacola-lista {
+    list-style: none;
+    padding: 0;
+  }
+
+  .linha {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.35rem 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1.5px solid oklch(0.2 0.02 55 / 0.2);
+  }
+
+  .linha[data-nova] {
+    animation: entra 0.35s var(--sai);
+  }
+
+  @keyframes entra {
+    from {
+      opacity: 0;
+      translate: 0 -0.4rem;
+    }
+  }
+
+  .linha-nome {
+    font-weight: 800;
+  }
+
+  .linha-sub {
+    font-family: var(--display);
+    text-align: right;
+  }
+
+  .linha .qtd {
+    display: inline-flex;
+    justify-self: start;
+  }
+
+  .linha-remover {
+    justify-self: end;
+    min-height: 2.75rem;
+    padding-inline: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .upgrade {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 1.25rem;
+    background: var(--mostarda);
+  }
+
+  .upgrade p {
+    font-weight: 700;
+    text-wrap: pretty;
+  }
+
+  .upgrade .botao {
+    min-height: 2.75rem;
+  }
+
+  .falta {
+    padding: 0.6rem 0.9rem;
+    border-radius: 1rem;
+    background: var(--mostarda);
+    font-weight: 600;
+  }
+
+  .campos {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .campo {
+    display: grid;
+    gap: 0.35rem;
+    font-weight: 800;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 1rem;
+    border: var(--traco) solid var(--tinta);
+    background: oklch(0.99 0.01 92);
+    color: var(--tinta);
+    font-weight: 400;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 4.25rem;
+  }
+
+  ::placeholder {
+    color: var(--tinta-2);
+    opacity: 1;
+  }
+
+  .resposta-curta {
+    margin-top: -0.5rem;
+    font-size: 0.9375rem;
+    color: var(--tinta-2);
+  }
+
+  .chips-pequenos legend {
+    margin-bottom: 0.35rem;
+  }
+
+  .chips-pequenos .chip:has(input:checked) {
+    color: var(--creme);
+  }
+
+  .sacola-pe {
+    position: relative;
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.85rem 1.25rem calc(0.6rem + env(safe-area-inset-bottom));
+    border-top: var(--traco) solid var(--tinta);
+  }
+
+  .total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: 800;
+  }
+
+  .total strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.75rem;
+  }
+
+  .botao-enviar {
+    width: 100%;
+    min-height: 3.5rem;
+  }
+
+  .gatilho {
+    font-size: 0.875rem;
+    text-align: center;
+    color: var(--tinta-2);
+  }
+
+  .sacola-pe .botao-texto {
+    justify-self: center;
+    font-size: 0.9375rem;
+  }
+
+  /* ---------- Aviso ---------- */
+  .aviso {
+    position: fixed;
+    left: 50%;
+    bottom: calc(5.75rem + env(safe-area-inset-bottom));
+    z-index: var(--z-aviso);
+    width: max-content;
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: 0.7rem 1.1rem;
+    border-radius: 999px;
+    background: var(--creme);
+    color: var(--tinta);
+    outline: var(--traco) solid var(--tinta);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% 0.5rem;
+    transition:
+      opacity 0.2s,
+      translate 0.3s var(--sai);
+  }
+
+  .aviso[data-visivel] {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

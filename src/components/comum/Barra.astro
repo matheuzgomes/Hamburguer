@@ -1,0 +1,20 @@
+---
+/** Barra fixa que aparece com a sacola cheia: contagem, total e abre a sacola. */
+import Icone from '../Icone.astro';
+import { preco } from '../../lib/dinheiro';
+
+interface Props {
+  rotulo?: string;
+}
+
+const { rotulo = 'Ver sacola' } = Astro.props;
+---
+
+<div class="barra">
+  <button type="button" class="barra-botao" data-abrir="sacola" aria-haspopup="dialog">
+    <span class="barra-qtd"><Icone nome="sacola" tamanho={20} /><span data-sacola-contagem>0</span><span class="sr-only"> itens,</span></span>
+    <span>{rotulo}</span>
+    <span class="barra-total" data-sacola-total>{preco(0)}</span>
+  </button>
+</div>
+<p class="aviso" data-aviso role="status"></p>

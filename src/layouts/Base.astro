@@ -1,0 +1,52 @@
+---
+/**
+ * Documento comum aos 4 layouts de teste. Cada layout escolhe as próprias fontes
+ * e a cor do navegador; o conteúdo e o CSS vêm do slot.
+ */
+import { Font } from 'astro:assets';
+import DadosCardapio from '../components/DadosCardapio.astro';
+import { loja } from '../data/loja';
+
+type Fonte = '--font-ombros' | '--font-ultra' | '--font-schibsted' | '--font-fragment' | '--font-bagel';
+
+interface Props {
+  titulo: string;
+  descricao?: string;
+  /** Fontes do layout; `preload` só na que aparece na primeira tela. */
+  fontes: { variavel: Fonte; preload?: boolean }[];
+  corTema: string;
+  esquema?: 'dark' | 'light';
+  noindex?: boolean;
+}
+
+const {
+  titulo,
+  descricao = `${loja.slogan}. Hambúrguer artesanal com entrega em ${loja.bairroBase} e bairros vizinhos, ${loja.horario.texto.toLowerCase()}. Peça pelo WhatsApp.`,
+  fontes,
+  corTema,
+  esquema = 'dark',
+  noindex = true,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR" data-sacola="vazia" data-loja="fechada" style={`color-scheme: ${esquema}`}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {fontes.map((f) => <Font cssVariable={f.variavel} preload={f.preload} />)}
+    <meta name="theme-color" content={corTema} />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+    <DadosCardapio />
+    <script src="../scripts/sacola-ui.ts"></script>
+  </body>
+</html>

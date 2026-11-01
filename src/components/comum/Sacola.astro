@@ -1,0 +1,101 @@
+---
+/**
+ * A sacola em <dialog id="sacola">, igual nos 4 layouts (cada um estiliza as classes).
+ * Slots: "topo" (antes do título, ex.: cabeçalho de cupom) e "pe" (depois do botão de enviar).
+ */
+import Icone from '../Icone.astro';
+import { loja } from '../../data/loja';
+import { entrega, gatilhoEnvio } from '../../data/textos';
+import { preco } from '../../lib/dinheiro';
+import { urlWhatsApp } from '../../lib/whatsapp';
+
+interface Props {
+  titulo?: string;
+  rotuloTotal?: string;
+  classe?: string;
+}
+
+const { titulo = 'Sua sacola', rotuloTotal = 'Total dos itens', classe } = Astro.props;
+const whatsappSimples = urlWhatsApp(loja.whatsapp, 'Oi, Nossa! Quero fazer um pedido.');
+---
+
+<dialog id="sacola" class:list={['sacola', classe]} data-sacola-dialogo aria-labelledby="t-sacola">
+  <div class="sacola-caixa">
+    <slot name="topo" />
+    <div class="sacola-topo">
+      <h2 id="t-sacola" tabindex="-1" data-foco-sacola>{titulo}</h2>
+      <button type="button" class="icone-botao" data-fechar aria-label="Fechar a sacola"><Icone nome="fechar" /></button>
+    </div>
+
+    <div class="sacola-corpo">
+      <div class="sacola-vazia">
+        <p>A sacola está vazia.</p>
+        <button type="button" class="botao botao-linha" data-fechar>Voltar pro cardápio</button>
+      </div>
+
+      <ul class="sacola-lista" data-sacola-lista>
+        <template data-modelo-linha>
+          <li class="linha">
+            <span class="linha-nome" data-linha="nome"></span>
+            <span class="linha-sub" data-linha="subtotal"></span>
+            <div class="qtd" role="group" aria-label="Quantidade">
+              <button type="button" data-menos aria-label="Tirar um"><Icone nome="menos" tamanho={18} /></button>
+              <span class="qtd-n" data-linha="qtd"></span>
+              <button type="button" data-mais aria-label="Mais um"><Icone nome="mais" tamanho={18} /></button>
+            </div>
+            <button type="button" class="linha-remover" data-remover aria-label="Remover">Remover</button>
+          </li>
+        </template>
+      </ul>
+
+      <div class="upgrade" data-upgrade hidden>
+        <p data-upgrade-texto></p>
+        <button type="button" class="botao botao-linha" data-upgrade-aceitar>Trocar</button>
+      </div>
+
+      <p class="falta" data-falta-minimo hidden>
+        Faltam <strong data-falta-valor></strong> pro pedido mínimo de {preco(loja.entrega.pedidoMinimo)}.
+      </p>
+
+      <div class="campos">
+        <label class="campo">
+          Bairro de entrega
+          <select data-campo="bairro">
+            <option value="">Escolher</option>
+            {loja.bairros.map((b) => <option value={b}>{b}</option>)}
+            <option value="Outro bairro">Outro bairro</option>
+          </select>
+        </label>
+        <p class="resposta-curta" data-resposta-bairro hidden></p>
+        <p class="resposta-curta">{entrega.taxa} O endereço você manda no WhatsApp.</p>
+        <fieldset class="chips chips-pequenos">
+          <legend>Pagamento</legend>
+          {
+            loja.pagamentos.map((p) => (
+              <label class="chip">
+                <input type="radio" name="pagamento" value={p} data-campo="pagamento" />
+                {p}
+              </label>
+            ))
+          }
+        </fieldset>
+        <label class="campo">
+          Observação
+          <textarea data-campo="observacao" maxlength="200" rows="2" placeholder="Sem cebola, troco pra R$ 50…"></textarea>
+        </label>
+      </div>
+    </div>
+
+    <div class="sacola-pe">
+      <p class="total"><span>{rotuloTotal}</span><strong data-sacola-total>{preco(0)}</strong></p>
+      <a class="botao botao-cheio botao-enviar" href={whatsappSimples} data-enviar target="_blank" rel="noopener">
+        <Icone nome="whatsapp" tamanho={22} /><span data-rotulo-enviar>Enviar pedido no WhatsApp</span>
+      </a>
+      <p class="gatilho">{gatilhoEnvio}</p>
+      <button type="button" class="botao-texto" data-compartilhar="pedido">
+        <Icone nome="compartilhar" tamanho={18} /> Mandar pra alguém pedir igual
+      </button>
+      <slot name="pe" />
+    </div>
+  </div>
+</dialog>

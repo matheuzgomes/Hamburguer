@@ -1,0 +1,27 @@
+---
+/** "Entrega no meu bairro?": chips de rádio dos bairros e a resposta na hora (sincronizada com a sacola). */
+import { loja } from '../../data/loja';
+
+interface Props {
+  legenda?: string;
+}
+
+const { legenda = 'Escolhe o seu bairro' } = Astro.props;
+---
+
+<fieldset class="chips">
+  <legend>{legenda}</legend>
+  {
+    loja.bairros.map((b) => (
+      <label class="chip">
+        <input type="radio" name="bairro-entrega" value={b} data-campo="bairro" />
+        {b}
+      </label>
+    ))
+  }
+  <label class="chip">
+    <input type="radio" name="bairro-entrega" value="Outro bairro" data-campo="bairro" />
+    Outro bairro
+  </label>
+</fieldset>
+<div class="resposta" role="status"><p data-resposta-bairro hidden></p></div>

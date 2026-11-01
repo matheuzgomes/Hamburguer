@@ -1,0 +1,1563 @@
+---
+/**
+ * Layout de teste 3 — Comanda.
+ * Cena: 18h50 no trem, uma mão no celular, decidindo em 30 segundos. Claro e contido:
+ * branco neutro, tinta preta e mostarda só como marca-texto e carimbo. Busca e abas no
+ * topo, lista densa com miniaturas e a sacola como cupom de impressora térmica.
+ */
+import Base from '../../layouts/Base.astro';
+import Foto from '../../components/Foto.astro';
+import Icone from '../../components/Icone.astro';
+import Bairros from '../../components/comum/Bairros.astro';
+import Barra from '../../components/comum/Barra.astro';
+import Fatos from '../../components/comum/Fatos.astro';
+import Perguntas from '../../components/comum/Perguntas.astro';
+import Sacola from '../../components/comum/Sacola.astro';
+import Item from '../../components/l3/Item.astro';
+import { doGrupo, grupos, nomesEtiquetas, type Etiqueta, type Grupo } from '../../data/cardapio';
+import { loja } from '../../data/loja';
+import { provas } from '../../data/textos';
+import { preco } from '../../lib/dinheiro';
+import { urlWhatsApp } from '../../lib/whatsapp';
+import icone from '../../assets/marca/icone.svg?url';
+import logoTraco from '../../assets/marca/logo-traco.svg?url';
+
+const subtitulos: Record<Grupo, string> = {
+  'so-eu': 'Todo combo vem com batata frita e Coca-Cola lata.',
+  'a-dois': 'Dois lanches e refri grande pra dividir.',
+  familia: 'Três ou quatro lanches, batatas e Coca-Cola 1,5 L.',
+  extras: 'Pra completar o pedido ou beliscar sozinho.',
+};
+const filtros: Etiqueta[] = ['smash', 'artesanal', 'bacon', 'cheddar', 'frango', 'salada', 'catupiry'];
+const secoes = grupos.map((g) => ({ ...g, itens: doGrupo(g.id) }));
+const total = secoes.reduce((n, s) => n + s.itens.length, 0);
+const whatsappSimples = urlWhatsApp(loja.whatsapp, 'Oi, Nossa! Quero fazer um pedido.');
+---
+
+<Base
+  titulo="Nossa Hamburgueria · Comanda (teste 3)"
+  fontes={[{ variavel: '--font-schibsted', preload: true }, { variavel: '--font-fragment' }]}
+  corTema="#fbfbfb"
+  esquema="light"
+>
+  <header class="topo">
+    <a class="marca-topo" href="#cardapio">
+      <img src={icone} alt="" width="34" height="29" />
+      <span>Nossa Hamburgueria</span>
+    </a>
+    <p class="status"><span class="ponto" aria-hidden="true"></span><span data-status-loja>{loja.horario.texto}</span></p>
+  </header>
+
+  <section class="abertura" aria-labelledby="t-abertura">
+    <h1 id="t-abertura">Da nossa chapa direto pra sua casa</h1>
+    <p class="sub">Hambúrguer artesanal com blend moído na casa. Escolhe aqui, a gente recebe no WhatsApp.</p>
+    <ul class="fatos-linha">
+      <li><Icone nome="moto" tamanho={18} /> {loja.entrega.gratisNosBairros ? 'Entrega grátis' : 'Entrega'} em {loja.bairroBase} e vizinhança</li>
+      <li><Icone nome="relogio" tamanho={18} /> {loja.entrega.tempo}</li>
+      <li>Mínimo {preco(loja.entrega.pedidoMinimo)}</li>
+    </ul>
+    <div class="filtros" role="group" aria-label="Filtrar por ingrediente">
+      {
+        filtros.map((e) => (
+          <button type="button" class="filtro" data-filtro-etiqueta={e} data-filtro-nome={nomesEtiquetas[e]} aria-pressed="false">
+            {nomesEtiquetas[e]}
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  <div class="barra-busca">
+    <div class="busca">
+      <Icone nome="busca" tamanho={20} />
+      <input
+        type="search"
+        data-filtro-busca
+        aria-label="Buscar no cardápio"
+        placeholder="Buscar: bacon, frango, duplo…"
+        enterkeyhint="search"
+        autocomplete="off"
+      />
+    </div>
+    <nav class="abas" aria-label="Cardápio por quantidade de pessoas">
+      {secoes.map((s) => <a href={`#${s.id}`} data-aba={s.id}>{s.pergunta}</a>)}
+    </nav>
+    <p class="contagem">
+      <span data-filtro-contagem aria-live="polite">{total} itens</span>
+      <button type="button" class="limpar" data-filtro-limpar hidden>Limpar filtro</button>
+    </p>
+  </div>
+
+  <div class="corpo">
+    <main id="cardapio">
+      <h2 class="sr-only">Cardápio</h2>
+      {
+        secoes.map((s) => (
+          <section class="grupo" id={s.id} data-filtro-grupo aria-labelledby={`t-${s.id}`}>
+            <div class="grupo-topo">
+              <h2 id={`t-${s.id}`}>{s.pergunta}</h2>
+              <p>{subtitulos[s.id]}</p>
+            </div>
+            <ul class="lista">
+              {s.itens.map((item) => (
+                <Item item={item} />
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+      <div class="vazio" data-filtro-vazio hidden>
+        <p class="vazio-titulo">Nada com “<span data-filtro-termo></span>” no cardápio.</p>
+        <p>Tenta “bacon”, “frango” ou “duplo”.</p>
+        <button type="button" class="botao botao-linha" data-filtro-limpar>Limpar busca</button>
+      </div>
+    </main>
+
+    <aside class="cupom-lateral" aria-labelledby="t-cupom">
+      <div class="cupom">
+        <div class="cupom-cabeca" aria-hidden="true">
+          <p>NOSSA HAMBURGUERIA</p>
+          <p>ARTESANAL · {loja.bairroBase.toUpperCase()}</p>
+          <p>PEDIDO PELO WHATSAPP</p>
+        </div>
+        <h2 id="t-cupom" class="cupom-titulo">Seu pedido</h2>
+        <p class="cupom-vazio">Nenhum item ainda. Escolhe um lanche e ele aparece aqui.</p>
+        <ul class="cupom-lista" data-sacola-lista>
+          <template data-modelo-linha>
+            <li class="cupom-linha">
+              <span class="cupom-qtd"><span data-linha="qtd"></span>x</span>
+              <span class="cupom-nome" data-linha="nome"></span>
+              <span class="cupom-valor" data-linha="subtotal"></span>
+            </li>
+          </template>
+        </ul>
+        <p class="cupom-total"><span>TOTAL</span><span data-sacola-total>{preco(0)}</span></p>
+        <p class="cupom-falta" data-falta-minimo hidden>Faltam <span data-falta-valor></span> pro mínimo.</p>
+        <button type="button" class="botao botao-cheio cupom-fechar" data-abrir="sacola" aria-haspopup="dialog">Conferir e enviar</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="prova" aria-labelledby="t-prova">
+    <Foto nome="ig-moedor" alt="Carne saindo do moedor na cozinha da Nossa" larguras={[160, 306]} sizes="10rem" class="prova-foto" />
+    <div>
+      <h2 id="t-prova">A carne é moída aqui</h2>
+      <p>{provas.blend} {provas.sal}</p>
+      <p class="seguidores"><strong>{loja.seguidores}</strong> pessoas acompanham a chapa no Instagram.</p>
+    </div>
+  </section>
+
+  <div class="info">
+    <section id="entrega" aria-labelledby="t-entrega">
+      <h2 id="t-entrega">Entrega no seu bairro?</h2>
+      <Bairros />
+      <Fatos />
+    </section>
+    <section aria-labelledby="t-perguntas">
+      <h2 id="t-perguntas">Antes de pedir</h2>
+      <Perguntas />
+    </section>
+  </div>
+
+  <footer class="rodape">
+    <img src={logoTraco} alt="Nossa Hamburgueria Artesanal" width="88" height="103" loading="lazy" />
+    <ul>
+      <li><a href={whatsappSimples} data-enviar target="_blank" rel="noopener"><Icone nome="whatsapp" tamanho={20} /> {loja.whatsappExibicao}</a></li>
+      <li><a href={loja.instagramUrl} target="_blank" rel="noopener"><Icone nome="instagram" tamanho={20} /> @{loja.instagram}</a></li>
+      <li><button type="button" data-compartilhar><Icone nome="compartilhar" tamanho={20} /> Manda pra quem vai dividir</button></li>
+    </ul>
+    <p class="fino">{loja.slogan}. {loja.horario.texto}. Layout de teste 3 de 4 · <a href="/">ver os outros</a></p>
+  </footer>
+
+  <Barra rotulo="Ver pedido" />
+  <Sacola titulo="Seu pedido" rotuloTotal="TOTAL" classe="cupom-dialogo">
+    <div slot="topo" class="cupom-cabeca" aria-hidden="true">
+      <p>NOSSA HAMBURGUERIA ARTESANAL</p>
+      <p>{loja.bairroBase.toUpperCase()} · {loja.whatsappExibicao}</p>
+    </div>
+    <p slot="pe" class="carimbo" aria-hidden="true">Pedido pronto</p>
+  </Sacola>
+
+  <script src="../../scripts/trilhas.ts"></script>
+  <script src="../../scripts/filtro.ts"></script>
+  <script src="../../scripts/carimbo.ts"></script>
+</Base>
+
+<style is:global>
+  :root {
+    --papel: oklch(0.985 0 0);
+    --cinza: oklch(0.955 0 0);
+    --linha: oklch(0.88 0 0);
+    --tinta: oklch(0.2 0.01 60);
+    --tinta-2: oklch(0.43 0.006 60);
+    --mostarda: oklch(0.82 0.15 80);
+    --termico: oklch(0.965 0.003 90);
+    --display: var(--font-schibsted);
+    --mono: var(--font-fragment);
+    --margem: max(1rem, calc((100vw - 76rem) / 2));
+    --sai: cubic-bezier(0.22, 1, 0.36, 1);
+    --z-busca: 10;
+    --z-barra: 20;
+    --z-aviso: 30;
+    scroll-padding-top: 8.5rem;
+    scroll-behavior: smooth;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  body {
+    background: var(--papel);
+    color: var(--tinta);
+    font: 400 1rem/1.5 var(--display);
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--tinta);
+    outline-offset: 2px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* ---------- Botões ---------- */
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+      background-color 0.15s,
+      color 0.15s,
+      scale 0.15s var(--sai);
+  }
+
+  .botao:active {
+    scale: 0.97;
+  }
+
+  .botao svg,
+  .botao-add svg,
+  .barra-botao svg,
+  .botao-texto svg {
+    flex: none;
+  }
+
+  .botao-cheio {
+    background: var(--tinta);
+    color: var(--papel);
+  }
+
+  .botao-cheio:hover {
+    background: oklch(0.32 0.01 60);
+  }
+
+  .botao-linha {
+    min-height: 2.75rem;
+    border: 1.5px solid var(--tinta);
+  }
+
+  .botao-linha:hover {
+    background: var(--tinta);
+    color: var(--papel);
+  }
+
+  /* ---------- Topo e abertura ---------- */
+  .topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem var(--margem);
+  }
+
+  .marca-topo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+    font-weight: 900;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+
+  .marca-topo img {
+    width: 2.1rem;
+    height: auto;
+    padding: 0.3rem;
+    border-radius: 8px;
+    background: var(--tinta);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: var(--cinza);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .ponto {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: oklch(0.6 0 0);
+  }
+
+  [data-loja='aberta'] .ponto {
+    background: oklch(0.62 0.17 145);
+  }
+
+  .abertura {
+    padding: 1.25rem var(--margem) 1rem;
+  }
+
+  .abertura h1 {
+    max-width: 18ch;
+    font-size: clamp(2rem, 8.5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  .sub {
+    max-width: 44ch;
+    margin-top: 0.6rem;
+    color: var(--tinta-2);
+    text-wrap: pretty;
+  }
+
+  .fatos-linha {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    margin-top: 0.9rem;
+    padding: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .fatos-linha li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .filtros {
+    display: flex;
+    gap: 0.4rem;
+    margin: 1.1rem calc(var(--margem) * -1) 0;
+    padding: 0 var(--margem) 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filtro {
+    flex: none;
+    min-height: 2.5rem;
+    padding: 0 0.95rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--linha);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+
+  .filtro:hover {
+    border-color: var(--tinta);
+  }
+
+  .filtro[aria-pressed='true'] {
+    background: var(--mostarda);
+    border-color: var(--tinta);
+  }
+
+  /* ---------- Busca fixa ---------- */
+  .barra-busca {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-busca);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    padding: 0.6rem var(--margem) 0.4rem;
+    background: var(--papel);
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .busca {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    background: var(--cinza);
+    border: 1.5px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  .busca:focus-within {
+    border-color: var(--tinta);
+  }
+
+  .busca svg {
+    flex: none;
+    color: var(--tinta-2);
+  }
+
+  .busca input {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.9rem;
+    border: 0;
+    background: none;
+    font-size: 1rem;
+    outline: none;
+  }
+
+  .busca input::placeholder {
+    color: var(--tinta-2);
+    opacity: 1;
+  }
+
+  .abas {
+    display: flex;
+    gap: 0.15rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .abas a {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    color: var(--tinta-2);
+  }
+
+  .abas a:hover {
+    color: var(--tinta);
+  }
+
+  .abas a[aria-current] {
+    color: var(--tinta);
+    background: var(--cinza);
+  }
+
+  .contagem {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  [data-filtrando] .contagem {
+    display: flex;
+  }
+
+  .limpar {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* ---------- Lista ---------- */
+  .corpo {
+    padding: 0 var(--margem) 2rem;
+  }
+
+  .grupo {
+    padding-top: 1.75rem;
+  }
+
+  .grupo-topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--tinta);
+  }
+
+  .grupo-topo h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .grupo-topo p {
+    font-size: 0.875rem;
+    color: var(--tinta-2);
+  }
+
+  .lista {
+    list-style: none;
+    padding: 0;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'foto texto'
+      'foto acoes';
+    gap: 0.4rem 0.9rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--linha);
+    scroll-margin-top: 9rem;
+  }
+
+  .item:target {
+    background: linear-gradient(var(--mostarda), var(--mostarda)) 0 0 / 0.3rem 100% no-repeat;
+    padding-left: 0.75rem;
+  }
+
+  .item picture {
+    grid-area: foto;
+  }
+
+  .item-foto {
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--cinza);
+  }
+
+  .item-texto {
+    grid-area: texto;
+    min-width: 0;
+  }
+
+  .item h3 {
+    font-size: 1.0625rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .marca {
+    display: inline-block;
+    margin-left: 0.3rem;
+    padding: 0 0.35rem;
+    background: var(--mostarda);
+    font-size: 0.75rem;
+    font-weight: 800;
+    vertical-align: 0.15em;
+    line-height: 1.5;
+  }
+
+  .marca-novo {
+    background: var(--cinza);
+  }
+
+  .serve {
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  .comp {
+    margin-top: 0.15rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--tinta-2);
+    text-wrap: pretty;
+  }
+
+  .item-preco {
+    margin-right: auto;
+    font-weight: 900;
+    font-size: 1.0625rem;
+    white-space: nowrap;
+  }
+
+  .item-acoes {
+    grid-area: acoes;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+
+  .compartilhar {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--tinta-2);
+  }
+
+  .compartilhar:hover {
+    background: var(--cinza);
+    color: var(--tinta);
+  }
+
+  .acao {
+    flex: none;
+  }
+
+  .botao-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    padding: 0 1rem 0 0.75rem;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--papel);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    transition: background-color 0.15s;
+  }
+
+  .botao-add:hover {
+    background: oklch(0.32 0.01 60);
+  }
+
+  .qtd {
+    display: none;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--mostarda);
+  }
+
+  .qtd button {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+  }
+
+  .qtd button:hover {
+    background: oklch(0.2 0.01 60 / 0.1);
+  }
+
+  .qtd output,
+  .qtd-n {
+    min-width: 1.5ch;
+    text-align: center;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-na-sacola] .botao-add {
+    display: none;
+  }
+
+  [data-na-sacola] .qtd {
+    display: inline-flex;
+  }
+
+  .vazio {
+    display: grid;
+    justify-items: start;
+    gap: 0.5rem;
+    padding: 2.5rem 0;
+    color: var(--tinta-2);
+  }
+
+  .vazio-titulo {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--tinta);
+  }
+
+  .vazio .botao {
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .item {
+      grid-template-columns: 7rem minmax(0, 1fr) auto;
+      grid-template-areas: 'foto texto acoes';
+      align-items: center;
+      column-gap: 1.25rem;
+    }
+
+    .item-foto {
+      width: 7rem;
+      height: 7rem;
+    }
+
+    .item-preco {
+      min-width: 6.5rem;
+      margin-right: 0.75rem;
+      text-align: right;
+    }
+  }
+
+  /* ---------- Cupom ao lado (computador) ---------- */
+  .cupom-lateral {
+    display: none;
+  }
+
+  .cupom,
+  .cupom-dialogo .sacola-caixa {
+    font-family: var(--mono);
+  }
+
+  .cupom-cabeca {
+    padding-bottom: 0.75rem;
+    border-bottom: 1.5px dashed var(--tinta);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @media (min-width: 64rem) {
+    .corpo {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 21rem;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .cupom-lateral {
+      display: block;
+      position: sticky;
+      top: 9.5rem;
+      padding-top: 1.75rem;
+    }
+
+    .barra {
+      display: none !important;
+    }
+
+    .barra-busca {
+      grid-template-columns: minmax(0, 26rem) auto 1fr;
+      align-items: center;
+      column-gap: 1.25rem;
+    }
+
+    .contagem {
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+  }
+
+  /* Papel térmico com a borda serrilhada embaixo. */
+  .cupom {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem 1.25rem 2rem;
+    background: var(--termico);
+    box-shadow: 0 0.6rem 1.5rem -1rem oklch(0.2 0.01 60 / 0.4);
+    mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 0.9rem 100%;
+    font-size: 0.875rem;
+  }
+
+  .cupom-titulo {
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .cupom-vazio {
+    color: var(--tinta-2);
+  }
+
+  [data-sacola='cheia'] .cupom-vazio,
+  [data-sacola='vazia'] .cupom-fechar,
+  [data-sacola='vazia'] .cupom-total {
+    display: none;
+  }
+
+  .cupom-lista {
+    list-style: none;
+    display: grid;
+    gap: 0.35rem;
+    padding: 0;
+  }
+
+  .cupom-linha {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+
+  .cupom-linha[data-nova] {
+    animation: imprime 0.5s steps(5, end);
+  }
+
+  @keyframes imprime {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  .cupom-nome {
+    text-transform: uppercase;
+  }
+
+  .cupom-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 0.6rem;
+    border-top: 1.5px dashed var(--tinta);
+    font-size: 1.0625rem;
+  }
+
+  .cupom-falta {
+    padding: 0.2rem 0.4rem;
+    background: var(--mostarda);
+  }
+
+  .cupom-fechar {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-family: var(--display);
+  }
+
+  /* ---------- Prova, entrega e perguntas ---------- */
+  .prova {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+    margin: 1rem var(--margem) 0;
+    padding: 1.5rem 0;
+    border-block: 2px solid var(--tinta);
+  }
+
+  .prova-foto {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .prova h2,
+  .info h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+  }
+
+  .prova p {
+    max-width: 62ch;
+    color: var(--tinta-2);
+  }
+
+  .seguidores {
+    margin-top: 0.6rem;
+  }
+
+  .seguidores strong {
+    color: var(--tinta);
+    background: var(--mostarda);
+    padding: 0 0.25rem;
+  }
+
+  @media (min-width: 48rem) {
+    .prova {
+      grid-template-columns: 10rem minmax(0, 1fr);
+      gap: 2rem;
+    }
+  }
+
+  .info {
+    display: grid;
+    gap: 2.5rem;
+    padding: 2.5rem var(--margem);
+  }
+
+  @media (min-width: 64rem) {
+    .info {
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+    }
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .chips legend {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+    color: var(--tinta-2);
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0.95rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--linha);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    cursor: pointer;
+  }
+
+  .chip:hover {
+    border-color: var(--tinta);
+  }
+
+  .chip input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .chip:has(input:focus-visible) {
+    outline: 2px solid var(--tinta);
+    outline-offset: 2px;
+  }
+
+  .chip:has(input:checked) {
+    background: var(--tinta);
+    border-color: var(--tinta);
+    color: var(--papel);
+  }
+
+  .resposta p {
+    margin-top: 1rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--cinza);
+    border-radius: 10px;
+    font-weight: 700;
+  }
+
+  .fatos {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 1.25rem;
+    margin-top: 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .fatos dt {
+    color: var(--tinta-2);
+  }
+
+  .fatos dd {
+    font-weight: 700;
+  }
+
+  details {
+    border-bottom: 1px solid var(--linha);
+  }
+
+  summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.25rem;
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: '+';
+    font-size: 1.4rem;
+    font-weight: 400;
+    transition: rotate 0.25s var(--sai);
+  }
+
+  details[open] summary::after {
+    rotate: 45deg;
+  }
+
+  details p {
+    max-width: 60ch;
+    padding-bottom: 1rem;
+    color: var(--tinta-2);
+  }
+
+  /* ---------- Rodapé ---------- */
+  .rodape {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    padding: 2rem var(--margem) calc(2rem + var(--folga-barra, 0px));
+    background: var(--cinza);
+  }
+
+  [data-sacola='cheia'] {
+    --folga-barra: 5rem;
+  }
+
+  .rodape > img {
+    width: 5.5rem;
+    height: auto;
+    padding: 0.6rem;
+    border-radius: 14px;
+    background: var(--tinta);
+  }
+
+  .rodape ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    padding: 0;
+  }
+
+  .rodape a,
+  .rodape button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .rodape a:hover,
+  .rodape button:hover {
+    text-decoration: underline;
+  }
+
+  .fino {
+    font-size: 0.8125rem;
+    color: var(--tinta-2);
+  }
+
+  .fino a {
+    text-decoration: underline;
+  }
+
+  /* ---------- Barra (celular): a ponta do cupom ---------- */
+  .barra {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: var(--z-barra);
+    padding: 0 0.6rem env(safe-area-inset-bottom);
+    pointer-events: none;
+    translate: 0 110%;
+    visibility: hidden;
+    transition:
+      translate 0.4s var(--sai),
+      visibility 0s 0.4s;
+  }
+
+  [data-sacola='cheia'] .barra {
+    translate: 0 0;
+    visibility: visible;
+    transition:
+      translate 0.4s var(--sai),
+      visibility 0s;
+  }
+
+  .barra-botao {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 3.75rem;
+    padding: 0.9rem 1.1rem 0.75rem;
+    background: var(--termico);
+    font-family: var(--mono);
+    font-size: 0.9375rem;
+    text-align: left;
+    text-transform: uppercase;
+    box-shadow: 0 -0.5rem 1.5rem -0.75rem oklch(0.2 0.01 60 / 0.45);
+    mask:
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 0.9rem 100%;
+  }
+
+  .barra-qtd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .barra-total {
+    padding: 0.15rem 0.45rem;
+    background: var(--mostarda);
+  }
+
+  /* ---------- Sacola: o cupom inteiro ---------- */
+  .sacola {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(94dvh, 50rem);
+    margin: auto 0 0;
+    padding: 0;
+    border: 0;
+    background: var(--termico);
+    color: var(--tinta);
+    translate: 0 100%;
+    transition:
+      translate 0.45s var(--sai),
+      overlay 0.45s allow-discrete,
+      display 0.45s allow-discrete;
+  }
+
+  .sacola[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .sacola[open] {
+      translate: 0 100%;
+    }
+  }
+
+  /* Papel térmico: a borda serrilhada de quem destacou o cupom da impressora. */
+  .sacola {
+    padding-top: 0.5rem;
+    mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% / 0.9rem 100%;
+  }
+
+  .sacola::backdrop {
+    background: oklch(0.2 0.01 60 / 0);
+    transition:
+      background-color 0.45s,
+      overlay 0.45s allow-discrete,
+      display 0.45s allow-discrete;
+  }
+
+  .sacola[open]::backdrop {
+    background: oklch(0.2 0.01 60 / 0.45);
+  }
+
+  @starting-style {
+    .sacola[open]::backdrop {
+      background: oklch(0.2 0.01 60 / 0);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .sacola {
+      width: min(26rem, 100%);
+      max-height: min(92dvh, 52rem);
+      margin: auto;
+      translate: 0 2rem;
+      opacity: 0;
+      transition:
+        translate 0.45s var(--sai),
+        opacity 0.3s,
+        overlay 0.45s allow-discrete,
+        display 0.45s allow-discrete;
+    }
+
+    .sacola[open] {
+      translate: 0 0;
+      opacity: 1;
+    }
+
+    .sacola {
+      padding-block: 0.5rem;
+      mask:
+        conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 0.9rem 51% repeat-x,
+        conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 0.9rem 51% repeat-x;
+    }
+
+    @starting-style {
+      .sacola[open] {
+        translate: 0 2rem;
+        opacity: 0;
+      }
+    }
+  }
+
+  .sacola-caixa {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: inherit;
+  }
+
+  .sacola-caixa > .cupom-cabeca {
+    padding: 1rem 1.25rem 0.75rem;
+  }
+
+  .sacola-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.6rem 0.4rem 1.25rem;
+  }
+
+  .sacola-topo h2 {
+    font-family: var(--mono);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sacola-topo h2:focus {
+    outline: none;
+  }
+
+  .icone-botao {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+  }
+
+  .icone-botao:hover {
+    background: oklch(0.2 0.01 60 / 0.08);
+  }
+
+  .sacola-corpo {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    padding: 0 1.25rem 1.25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sacola-vazia {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+    padding-top: 1rem;
+  }
+
+  [data-sacola='cheia'] .sacola-vazia,
+  [data-sacola='vazia'] .sacola-pe,
+  [data-sacola='vazia'] .sacola-corpo > :not(.sacola-vazia) {
+    display: none;
+  }
+
+  .sacola-lista {
+    list-style: none;
+    padding: 0;
+    border-top: 1.5px dashed var(--tinta);
+  }
+
+  .linha {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.2rem 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px dashed var(--linha);
+  }
+
+  .linha[data-nova] {
+    animation: imprime 0.5s steps(5, end);
+  }
+
+  .linha-nome {
+    text-transform: uppercase;
+    font-size: 0.9375rem;
+  }
+
+  .linha-sub {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .linha .qtd {
+    display: inline-flex;
+    justify-self: start;
+    background: none;
+    border: 1.5px solid var(--tinta);
+  }
+
+  .linha-remover {
+    justify-self: end;
+    min-height: 2.75rem;
+    padding-inline: 0.25rem;
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .upgrade {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.9rem;
+    border: 1.5px dashed var(--tinta);
+  }
+
+  .upgrade p {
+    font-size: 0.9375rem;
+    text-wrap: pretty;
+  }
+
+  .upgrade .botao {
+    font-family: var(--display);
+  }
+
+  .falta {
+    padding: 0.3rem 0.5rem;
+    background: var(--mostarda);
+    font-size: 0.9375rem;
+  }
+
+  .campos {
+    display: grid;
+    gap: 1rem;
+    font-family: var(--display);
+  }
+
+  .campo {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--linha);
+    background: var(--papel);
+    color: var(--tinta);
+    font-weight: 400;
+  }
+
+  select:focus,
+  textarea:focus {
+    border-color: var(--tinta);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 4.25rem;
+  }
+
+  ::placeholder {
+    color: var(--tinta-2);
+    opacity: 1;
+  }
+
+  .resposta-curta {
+    margin-top: -0.5rem;
+    font-size: 0.875rem;
+    color: var(--tinta-2);
+  }
+
+  .chips-pequenos legend {
+    margin-bottom: 0.35rem;
+    font-size: 0.9375rem;
+    color: var(--tinta);
+  }
+
+  .sacola-pe {
+    position: relative;
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem calc(0.5rem + env(safe-area-inset-bottom));
+    border-top: 1.5px dashed var(--tinta);
+  }
+
+  .total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 1.125rem;
+  }
+
+  .total strong {
+    font-weight: 400;
+    font-size: 1.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .botao-enviar {
+    width: 100%;
+    min-height: 3.25rem;
+    font-family: var(--display);
+  }
+
+  .gatilho {
+    font-family: var(--display);
+    font-size: 0.8125rem;
+    text-align: center;
+    color: var(--tinta-2);
+  }
+
+  .botao-texto {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    font-family: var(--display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Carimbo "PEDIDO PRONTO" ao enviar. */
+  .carimbo {
+    position: absolute;
+    right: 1rem;
+    top: -2.75rem;
+    padding: 0.35rem 0.75rem;
+    border: 3px solid var(--tinta);
+    border-radius: 8px;
+    background: var(--mostarda);
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    rotate: -9deg;
+    opacity: 0;
+    scale: 1.9;
+    pointer-events: none;
+    transition:
+      opacity 0.15s,
+      scale 0.35s var(--sai);
+  }
+
+  [data-carimbado] .carimbo {
+    opacity: 1;
+    scale: 1;
+  }
+
+  /* ---------- Aviso ---------- */
+  .aviso {
+    position: fixed;
+    left: 50%;
+    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+    z-index: var(--z-aviso);
+    width: max-content;
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--papel);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% 0.5rem;
+    transition:
+      opacity 0.2s,
+      translate 0.3s var(--sai);
+  }
+
+  .aviso[data-visivel] {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  @media (min-width: 64rem) {
+    .aviso {
+      bottom: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

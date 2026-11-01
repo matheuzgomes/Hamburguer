@@ -1,0 +1,36 @@
+---
+/**
+ * Foto do cardápio em AVIF, com o <img> em WebP para quem não tem AVIF. As fontes têm ~400–700 px, então
+ * nunca pedimos larguras maiores que o original (o Astro não amplia).
+ */
+import { Picture } from 'astro:assets';
+import { foto } from '../lib/fotos';
+
+interface Props {
+  nome: string;
+  alt: string;
+  /** Larguras desejadas; as maiores que o original são descartadas. */
+  larguras?: number[];
+  sizes: string;
+  class?: string;
+  prioridade?: boolean;
+}
+
+const { nome, alt, larguras = [240, 360, 480, 640], sizes, class: classe, prioridade = false } = Astro.props;
+const imagem = foto(nome);
+const widths = [...new Set(larguras.filter((l) => l < imagem.width).concat(imagem.width))].sort((a, b) => a - b);
+---
+
+<Picture
+  src={imagem}
+  alt={alt}
+  formats={['avif']}
+  fallbackFormat="webp"
+  widths={widths}
+  sizes={sizes}
+  class={classe}
+  loading={prioridade ? 'eager' : 'lazy'}
+  decoding={prioridade ? 'sync' : 'async'}
+  fetchpriority={prioridade ? 'high' : undefined}
+  quality={56}
+/>

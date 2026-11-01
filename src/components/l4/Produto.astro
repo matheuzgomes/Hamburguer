@@ -1,0 +1,48 @@
+---
+/** Um item do cardápio (layout 4): foto em adesivo redondo, nome gordo, o que vem e o preço. Filtrável. */
+import Foto from '../Foto.astro';
+import Icone from '../Icone.astro';
+import Acao from '../comum/Acao.astro';
+import { nomeCurto, nomesDestaques, nomesEtiquetas, resumo, type Item } from '../../data/cardapio';
+import { preco } from '../../lib/dinheiro';
+import { normalizar } from '../../lib/texto';
+
+interface Props {
+  item: Item;
+  /** Posição na lista: alterna o giro do adesivo. */
+  indice: number;
+}
+
+const { item, indice } = Astro.props;
+const nome = nomeCurto(item);
+const comp = item.grupo === 'so-eu' && item.lanche ? item.lanche.composicao : resumo(item);
+const texto = normalizar([item.nome, comp, ...item.acompanha, ...item.etiquetas.map((e) => nomesEtiquetas[e])].join(' '));
+const giros = [-4, 3, -2, 5, -5, 2];
+---
+
+<li
+  class="produto"
+  id={item.slug}
+  data-item={item.slug}
+  data-filtravel
+  data-texto={texto}
+  data-etiquetas={item.etiquetas.join(' ')}
+  style={`--giro: ${giros[indice % giros.length]}deg`}
+>
+  <div class="adesivo">
+    <Foto nome={item.foto} alt={item.alt} larguras={[112, 224, 320]} sizes="(min-width: 64rem) 9rem, 6.5rem" class="adesivo-foto" />
+  </div>
+  <div class="produto-texto">
+    {item.destaque && <p class:list={['selo', `selo-${item.destaque}`]}>{nomesDestaques[item.destaque]}</p>}
+    <h3>{nome}</h3>
+    {item.pessoas > 1 && <p class="serve">Serve {item.pessoas}</p>}
+    <p class="comp">{comp}</p>
+    <div class="produto-pe">
+      <p class="produto-preco">{preco(item.preco)}</p>
+      <Acao item={item} />
+    </div>
+  </div>
+  <button type="button" class="compartilhar" data-compartilhar={`item:${item.slug}`} aria-label={`Mandar o ${nome} pra alguém`}>
+    <Icone nome="compartilhar" tamanho={18} />
+  </button>
+</li>

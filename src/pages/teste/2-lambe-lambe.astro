@@ -1,0 +1,1681 @@
+---
+/**
+ * Layout de teste 2 — Lambe-lambe.
+ * Cena: cartaz colado no poste, sol do meio-dia na Zona Norte. Claro e berrante: um muro
+ * de concreto com cartazes em quatro papéis (creme, mostarda, brasa e preto), tipos de
+ * madeira, preços enormes e fotos em meio-tom de risografia (que escondem a resolução).
+ */
+import Base from '../../layouts/Base.astro';
+import Icone from '../../components/Icone.astro';
+import Acao from '../../components/comum/Acao.astro';
+import Bairros from '../../components/comum/Bairros.astro';
+import Barra from '../../components/comum/Barra.astro';
+import Fatos from '../../components/comum/Fatos.astro';
+import Perguntas from '../../components/comum/Perguntas.astro';
+import Sacola from '../../components/comum/Sacola.astro';
+import Linha from '../../components/l2/Linha.astro';
+import Preco from '../../components/l2/Preco.astro';
+import { doGrupo, grupos, nomeCurto, porSlug, type Grupo } from '../../data/cardapio';
+import { loja } from '../../data/loja';
+import { provas } from '../../data/textos';
+import { meioTom } from '../../lib/meio-tom';
+import { urlWhatsApp } from '../../lib/whatsapp';
+import logo from '../../assets/marca/logo.svg?url';
+import grao from '../../assets/textura/grao.webp';
+
+const campeao = porSlug.get('combo-duplo-smash-bacon')!;
+const abertura = meioTom('abertura');
+const moedor = meioTom('ig-moedor');
+const subtitulos: Record<Grupo, string> = {
+  'so-eu': 'Todo combo vem com batata frita e Coca-Cola lata.',
+  'a-dois': 'Dois lanches e refri grande pra dividir.',
+  familia: 'Três ou quatro lanches, batatas e Coca-Cola 1,5 L.',
+  extras: 'Pra completar o pedido ou beliscar sozinho.',
+};
+const papeis: Record<Grupo, string> = { 'so-eu': 'papel', 'a-dois': 'mostarda', familia: 'brasa', extras: 'preto' };
+const secoes = grupos.map((g) => ({ ...g, itens: doGrupo(g.id) }));
+const whatsappSimples = urlWhatsApp(loja.whatsapp, 'Oi, Nossa! Quero fazer um pedido.');
+const frases = [
+  loja.horario.texto,
+  `Entrega ${loja.entrega.gratisNosBairros ? 'grátis ' : ''}em ${loja.bairroBase} e vizinhança`,
+  'Blend moído na casa',
+  'Pede pelo WhatsApp',
+];
+---
+
+<Base titulo="Nossa Hamburgueria · Lambe-lambe (teste 2)" fontes={[{ variavel: '--font-ultra', preload: true }]} corTema="#1d1915" esquema="light">
+  <div class="muro" style={`--grao: url(${grao.src})`}>
+    <div class="faixa" data-faixa>
+      <p class="sr-only">{frases.join('. ')}.</p>
+      <div class="faixa-janela" aria-hidden="true">
+        <div class="faixa-trilho">
+          {
+            [0, 1].map(() => (
+              <span class="faixa-copia">
+                {frases.map((f) => (
+                  <span>
+                    {f} <Icone nome="mais" tamanho={14} class="faixa-estrela" />
+                  </span>
+                ))}
+              </span>
+            ))
+          }
+        </div>
+      </div>
+      <button type="button" class="faixa-pausar" data-faixa-pausar aria-pressed="false" aria-label="Pausar a faixa">
+        <Icone nome="pausa" tamanho={18} class="se-rodando" /><Icone nome="play" tamanho={18} class="se-pausada" />
+      </button>
+    </div>
+
+    <header class="topo">
+      <a class="topo-logo" href="#cardapio" aria-label="Nossa Hamburgueria Artesanal, ir para o cardápio">
+        <img src={logo} alt="" width="56" height="65" />
+      </a>
+      <p class="status"><span class="ponto" aria-hidden="true"></span><span data-status-loja>{loja.horario.texto}</span></p>
+    </header>
+
+    <section class="abertura" aria-labelledby="t-abertura">
+      <div class="cartaz papel-papel cartaz-abertura" style="--giro: -1.2deg">
+        <p class="kicker">Hamburgueria artesanal · {loja.bairroBase}, Rio</p>
+        <h1 id="t-abertura">
+          <span class="h-1">Da nossa</span>
+          <span class="h-2">chapa</span>
+          <span class="h-3">direto pra</span>
+          <span class="h-4">sua casa</span>
+        </h1>
+        <p class="sub">Blend moído na casa, pão brioche e cheddar de verdade. Toda noite, das 19h à meia-noite.</p>
+        <div class="acoes-abertura">
+          <a class="botao botao-tinta" href="#cardapio">Ver o cardápio <Icone nome="seta-baixo" tamanho={20} /></a>
+          <p class="nota-entrega">
+            <Icone nome="moto" tamanho={20} />
+            {loja.entrega.gratisNosBairros ? 'Grátis' : 'Entrega'} em {loja.bairros.length} bairros · {loja.entrega.tempo}
+          </p>
+        </div>
+      </div>
+
+      <div class="cartaz papel-papel cartaz-foto" style="--giro: 2deg">
+        <div class="riso">
+          <img
+            src={abertura.src}
+            width={abertura.width}
+            height={abertura.height}
+            alt="Nosso Supremo impresso em meio-tom: pão brioche, carne alta, bacon e queijo escorrendo"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+
+      <div class="cartaz papel-mostarda cartaz-campeao" style="--giro: -3deg" data-item={campeao.slug}>
+        <p class="selo-campeao">Campeão de vendas</p>
+        <p class="campeao-nome">{nomeCurto(campeao)}</p>
+        <div class="campeao-pe">
+          <Preco centavos={campeao.preco} />
+          <Acao item={campeao} />
+        </div>
+      </div>
+    </section>
+
+    <nav class="abas" aria-label="Cardápio por quantidade de pessoas">
+      <div class="abas-lista">
+        {
+          secoes.map((s) => (
+            <a href={`#${s.id}`} data-aba={s.id}>
+              {s.pergunta}
+            </a>
+          ))
+        }
+      </div>
+    </nav>
+
+    <main id="cardapio" class="mural">
+      <h2 class="sr-only">Cardápio</h2>
+      {
+        secoes.map((s, i) => (
+          <section
+            class:list={['cartaz', 'cartaz-precos', `papel-${papeis[s.id]}`, `cartaz-${s.id}`]}
+            id={s.id}
+            aria-labelledby={`t-${s.id}`}
+            style={`--giro: ${[-0.8, 0.9, -1.1, 0.7][i]}deg`}
+          >
+            <div class="cartaz-topo">
+              <h2 id={`t-${s.id}`}>{s.pergunta}</h2>
+              <p>{subtitulos[s.id]}</p>
+            </div>
+            <ol class="precos" role="list">
+              {s.itens.map((item) => (
+                <Linha item={item} grande={s.id === 'familia'} />
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+
+      <section class="cartaz papel-papel cartaz-prova" aria-labelledby="t-prova" style="--giro: 1deg">
+        <div class="riso">
+          <img src={moedor.src} width={moedor.width} height={moedor.height} alt="Carne saindo do moedor na cozinha da Nossa, em meio-tom" loading="lazy" decoding="async" />
+        </div>
+        <div class="prova-texto">
+          <h2 id="t-prova">A carne é moída aqui</h2>
+          <p>{provas.blend}</p>
+          <p>{provas.sal}</p>
+          <p class="seguidores"><strong>{loja.seguidores}</strong> pessoas acompanham a chapa no Instagram.</p>
+        </div>
+      </section>
+
+      <section class="cartaz papel-brasa cartaz-entrega" id="entrega" aria-labelledby="t-entrega" style="--giro: -0.9deg">
+        <h2 id="t-entrega">Chega aí?</h2>
+        <Bairros />
+        <Fatos />
+      </section>
+
+      <section class="cartaz papel-papel cartaz-perguntas" aria-labelledby="t-perguntas" style="--giro: 0.6deg">
+        <h2 id="t-perguntas">Antes de pedir</h2>
+        <Perguntas />
+      </section>
+    </main>
+
+    <footer class="rodape">
+      <img src={logo} alt="Nossa Hamburgueria Artesanal" width="96" height="112" loading="lazy" />
+      <div class="rodape-texto">
+        <p>{loja.slogan}. {loja.horario.texto}.</p>
+        <ul>
+          <li>
+            <a href={whatsappSimples} data-enviar target="_blank" rel="noopener"><Icone nome="whatsapp" tamanho={20} /> {loja.whatsappExibicao}</a>
+          </li>
+          <li>
+            <a href={loja.instagramUrl} target="_blank" rel="noopener"><Icone nome="instagram" tamanho={20} /> @{loja.instagram}</a>
+          </li>
+          <li>
+            <button type="button" data-compartilhar><Icone nome="compartilhar" tamanho={20} /> Cola esse cartaz no grupo</button>
+          </li>
+        </ul>
+        <p class="fino">Layout de teste 2 de 4 · <a href="/">ver os outros</a></p>
+      </div>
+    </footer>
+  </div>
+
+  <Barra rotulo="Ver sacola" />
+  <Sacola titulo="Sua sacola" />
+
+  <script src="../../scripts/trilhas.ts"></script>
+  <script src="../../scripts/faixa.ts"></script>
+</Base>
+
+<style is:global>
+  :root {
+    --muro: oklch(0.9 0.004 80);
+    --papel: oklch(0.955 0.022 88);
+    --mostarda: oklch(0.8 0.155 78);
+    --brasa: oklch(0.66 0.2 38);
+    --brasa-texto: oklch(0.52 0.19 36);
+    --tinta: oklch(0.19 0.02 50);
+    --tinta-2: oklch(0.32 0.025 55);
+    --display: var(--font-ultra);
+    --corpo: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --margem: max(0.875rem, calc((100vw - 80rem) / 2));
+    --sai: cubic-bezier(0.22, 1, 0.36, 1);
+    --z-abas: 10;
+    --z-barra: 20;
+    --z-aviso: 30;
+    scroll-padding-top: 4rem;
+    scroll-behavior: smooth;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  body {
+    background: var(--muro);
+    color: var(--tinta);
+    font: 500 1rem/1.5 var(--corpo);
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--tinta);
+    outline-offset: 3px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  h1,
+  h2 {
+    text-transform: uppercase;
+  }
+
+  /* O muro: concreto claro com grão. */
+  .muro {
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    overflow-x: clip;
+  }
+
+  .muro::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--grao) 0 0 / 180px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  /* ---------- Faixa rolante ---------- */
+  .faixa {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--tinta);
+    color: var(--mostarda);
+  }
+
+  .faixa-janela {
+    flex: 1;
+    overflow: hidden;
+    padding-block: 0.6rem;
+  }
+
+  .faixa-trilho {
+    display: flex;
+    width: max-content;
+    animation: rola 38s linear infinite;
+  }
+
+  .faixa[data-pausada] .faixa-trilho {
+    animation-play-state: paused;
+  }
+
+  .faixa-copia,
+  .faixa-copia > span {
+    display: flex;
+    align-items: center;
+  }
+
+  .faixa-copia > span {
+    gap: 1.25rem;
+    padding-right: 1.25rem;
+    font-family: var(--display);
+    font-size: 1rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .faixa-estrela {
+    rotate: 45deg;
+  }
+
+  @keyframes rola {
+    to {
+      translate: -50% 0;
+    }
+  }
+
+  .faixa-pausar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: 0.25rem;
+    color: var(--papel);
+  }
+
+  .faixa-pausar .se-pausada,
+  .faixa[data-pausada] .faixa-pausar .se-rodando {
+    display: none;
+  }
+
+  .faixa[data-pausada] .faixa-pausar .se-pausada {
+    display: block;
+  }
+
+  /* ---------- Topo ---------- */
+  .topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem var(--margem) 0.5rem;
+  }
+
+  .topo-logo img {
+    width: 3.5rem;
+    height: auto;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    background: var(--tinta);
+    color: var(--papel);
+    font-size: 0.875rem;
+    font-weight: 700;
+    rotate: 1.5deg;
+  }
+
+  .ponto {
+    position: relative;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: oklch(0.7 0.01 80);
+  }
+
+  [data-loja='aberta'] .ponto {
+    background: var(--mostarda);
+  }
+
+  [data-loja='aberta'] .ponto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--mostarda);
+    animation: pisca 2.2s var(--sai) infinite;
+  }
+
+  @keyframes pisca {
+    from {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    to {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  /* ---------- Cartazes ---------- */
+  .cartaz {
+    position: relative;
+    isolation: isolate;
+    padding: 1.5rem 1.25rem 1.75rem;
+  }
+
+  /* O papel gira; o texto fica reto (e nítido). */
+  .cartaz::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--cor-papel);
+    rotate: var(--giro, 0deg);
+    box-shadow:
+      0 1px 0 oklch(0.2 0.02 50 / 0.12),
+      0 0.9rem 1.6rem -1rem oklch(0.2 0.02 50 / 0.45);
+  }
+
+  .cartaz::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--grao) 0 0 / 180px;
+    opacity: 0.25;
+    rotate: var(--giro, 0deg);
+    pointer-events: none;
+  }
+
+  .papel-papel {
+    --cor-papel: var(--papel);
+  }
+
+  .papel-mostarda {
+    --cor-papel: var(--mostarda);
+  }
+
+  .papel-brasa {
+    --cor-papel: var(--brasa);
+  }
+
+  .papel-preto {
+    --cor-papel: var(--tinta);
+    color: var(--papel);
+  }
+
+  /* Colado no muro: o cartaz é "passado" da esquerda pra direita quando entra na tela. */
+  @supports (animation-timeline: view()) {
+    .mural > .cartaz {
+      animation: cola linear both;
+    }
+
+    /* Linha do tempo à parte: o minificador junta animation-timeline no atalho "animation",
+       e o navegador descarta a regra inteira. */
+    body .mural > .cartaz {
+      animation-timeline: view();
+      animation-range: entry 0% entry 25%;
+    }
+
+    @keyframes cola {
+      from {
+        clip-path: inset(-2rem 100% -2rem -2rem);
+        translate: 0 1.5rem;
+      }
+      to {
+        clip-path: inset(-2rem -2rem -2rem -2rem);
+        translate: 0 0;
+      }
+    }
+  }
+
+  /* Meio-tom: tinta brasa e preta sobre o papel creme, em qualquer cartaz. */
+  .riso {
+    background: var(--papel);
+    overflow: hidden;
+  }
+
+  .riso img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---------- Abertura ---------- */
+  .abertura {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0.75rem var(--margem) 2.5rem;
+  }
+
+  .cartaz-abertura {
+    z-index: 2;
+    padding: 1.6rem 1.25rem 1.75rem;
+    animation: chega 0.9s var(--sai) both;
+  }
+
+  @keyframes chega {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(-2rem);
+    }
+  }
+
+  .kicker {
+    font-weight: 800;
+    font-size: 0.9375rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .abertura h1 {
+    display: grid;
+    line-height: 0.88;
+  }
+
+  .h-1 {
+    font-size: clamp(2.2rem, 11.5vw, 4.4rem);
+  }
+
+  .h-2 {
+    font-size: clamp(3.6rem, 19.5vw, 8rem);
+    color: var(--brasa-texto);
+    letter-spacing: -0.01em;
+  }
+
+  .h-3 {
+    font-size: clamp(2rem, 10vw, 3.9rem);
+  }
+
+  .h-4 {
+    font-size: clamp(2.6rem, 13.8vw, 5.8rem);
+  }
+
+  .sub {
+    max-width: 34ch;
+    margin-top: 1.1rem;
+    font-size: 1.0625rem;
+    color: var(--tinta-2);
+    text-wrap: pretty;
+  }
+
+  .acoes-abertura {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .nota-entrega {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+
+  .nota-entrega svg {
+    flex: none;
+  }
+
+  .cartaz-foto {
+    z-index: 1;
+    width: 88%;
+    justify-self: end;
+    margin-top: -1rem;
+    padding: 0.75rem;
+  }
+
+  .cartaz-foto .riso {
+    aspect-ratio: 4 / 5;
+  }
+
+  .cartaz-campeao {
+    z-index: 3;
+    width: min(21rem, 92%);
+    margin-top: -4.5rem;
+    padding: 1.1rem 1.1rem 1.2rem;
+  }
+
+  .selo-campeao {
+    font-weight: 800;
+    font-size: 0.875rem;
+  }
+
+  .campeao-nome {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    line-height: 1;
+    margin-top: 0.2rem;
+  }
+
+  .campeao-pe {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.6rem;
+  }
+
+  @media (min-width: 64rem) {
+    .abertura {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+      padding-top: 1.5rem;
+      padding-bottom: 4rem;
+    }
+
+    .cartaz-abertura {
+      grid-column: 1 / span 7;
+      grid-row: 1;
+      padding: 2.5rem 2.5rem 2.75rem;
+      margin-top: 1rem;
+    }
+
+    .cartaz-foto {
+      grid-column: 7 / span 6;
+      grid-row: 1;
+      width: auto;
+      margin-top: 0;
+      max-width: 30rem;
+      justify-self: end;
+    }
+
+    .cartaz-campeao {
+      grid-column: 8 / span 4;
+      grid-row: 1;
+      align-self: end;
+      width: auto;
+      margin: 0 0 -2.5rem -1rem;
+    }
+  }
+
+  /* ---------- Botões ---------- */
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.25rem;
+    padding: 0 1.4rem;
+    font-family: var(--display);
+    font-size: 1.15rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      translate 0.2s var(--sai),
+      box-shadow 0.2s var(--sai);
+  }
+
+  .botao svg,
+  .botao-add svg,
+  .barra-botao svg,
+  .botao-texto svg {
+    flex: none;
+  }
+
+  .botao-tinta,
+  .botao-cheio {
+    background: var(--tinta);
+    color: var(--mostarda);
+    box-shadow: 0.3rem 0.3rem 0 var(--brasa);
+  }
+
+  .botao-tinta:hover,
+  .botao-cheio:hover {
+    translate: -2px -2px;
+    box-shadow: 0.45rem 0.45rem 0 var(--brasa);
+  }
+
+  .botao-tinta:active,
+  .botao-cheio:active {
+    translate: 2px 2px;
+    box-shadow: 0.1rem 0.1rem 0 var(--brasa);
+  }
+
+  .botao-linha {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    font-size: 1rem;
+    border: 2px solid currentColor;
+  }
+
+  .botao-linha:hover {
+    background: var(--tinta);
+    color: var(--papel);
+    border-color: var(--tinta);
+  }
+
+  .acao {
+    flex: none;
+  }
+
+  .botao-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    padding: 0 0.9rem 0 0.7rem;
+    border: 2px solid currentColor;
+    font-weight: 800;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .botao-add:hover {
+    background: var(--tinta);
+    color: var(--papel);
+    border-color: var(--tinta);
+  }
+
+  .papel-preto .botao-add:hover {
+    background: var(--papel);
+    color: var(--tinta);
+    border-color: var(--papel);
+  }
+
+  .qtd {
+    display: none;
+    align-items: center;
+    background: var(--tinta);
+    color: var(--papel);
+  }
+
+  .papel-preto .qtd {
+    background: var(--mostarda);
+    color: var(--tinta);
+  }
+
+  .qtd button {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .qtd output,
+  .qtd-n {
+    min-width: 2ch;
+    text-align: center;
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-na-sacola] .botao-add {
+    display: none;
+  }
+
+  [data-na-sacola] .qtd {
+    display: inline-flex;
+    animation: carimba 0.35s var(--sai);
+  }
+
+  @keyframes carimba {
+    from {
+      scale: 1.25;
+      opacity: 0;
+    }
+  }
+
+  .icone-botao {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .icone-botao:hover {
+    background: oklch(0.19 0.02 50 / 0.1);
+  }
+
+  /* Preço de cartaz */
+  .preco-visivel {
+    display: inline-flex;
+    align-items: flex-start;
+    font-family: var(--display);
+    line-height: 0.85;
+    white-space: nowrap;
+  }
+
+  .preco .rs,
+  .preco .cent {
+    font-size: 0.42em;
+    line-height: 1.15;
+  }
+
+  .preco .rs {
+    margin-right: 0.12em;
+  }
+
+  .preco .reais {
+    font-size: 1em;
+    letter-spacing: -0.02em;
+  }
+
+  .campeao-pe .preco {
+    font-size: 3.2rem;
+  }
+
+  /* ---------- Abas ---------- */
+  .abas {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-abas);
+    background: var(--tinta);
+  }
+
+  .abas-lista {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0.4rem var(--margem);
+  }
+
+  .abas a {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.9rem;
+    font-family: var(--display);
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--papel);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .abas a:hover {
+    color: var(--mostarda);
+  }
+
+  .abas a[aria-current] {
+    background: var(--mostarda);
+    color: var(--tinta);
+  }
+
+  /* ---------- Mural: tabelas de preço ---------- */
+  .mural {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    padding: 2.5rem var(--margem) 3rem;
+  }
+
+  .cartaz-precos {
+    scroll-margin-top: 4rem;
+    padding: 1.75rem 1.1rem 1rem;
+  }
+
+  .cartaz-topo {
+    padding-bottom: 1rem;
+    border-bottom: 4px solid currentColor;
+  }
+
+  .cartaz-topo h2 {
+    font-size: clamp(3rem, 15vw, 5.25rem);
+  }
+
+  .cartaz-topo p {
+    margin-top: 0.5rem;
+    font-weight: 700;
+  }
+
+  .precos {
+    list-style: none;
+    padding: 0;
+  }
+
+  .linha-cartaz {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'foto texto'
+      'preco acoes';
+    align-items: start;
+    gap: 0.75rem 1rem;
+    padding: 1.1rem 0;
+    border-bottom: 2px solid currentColor;
+    scroll-margin-top: 4.5rem;
+  }
+
+  .linha-cartaz:last-child {
+    border-bottom: 0;
+  }
+
+  .linha-cartaz:target {
+    outline: 3px dashed currentColor;
+    outline-offset: 0.25rem;
+  }
+
+  .linha-cartaz .riso {
+    grid-area: foto;
+    aspect-ratio: 1;
+  }
+
+  .linha-texto {
+    grid-area: texto;
+    display: grid;
+    gap: 0.3rem;
+    align-content: start;
+  }
+
+  .linha-cartaz h3 {
+    font-size: 1.3rem;
+    line-height: 1.05;
+  }
+
+  .comp {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+
+  .serve {
+    font-weight: 800;
+    font-size: 0.875rem;
+  }
+
+  .selo {
+    justify-self: start;
+    padding: 0.25rem 0.5rem;
+    background: var(--tinta);
+    color: var(--mostarda);
+    font-family: var(--display);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .papel-preto .selo,
+  .papel-mostarda .selo-campeao {
+    background: var(--mostarda);
+    color: var(--tinta);
+  }
+
+  .linha-preco {
+    grid-area: preco;
+    align-self: center;
+    font-size: 2.6rem;
+  }
+
+  .linha-acoes {
+    grid-area: acoes;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+
+  .linha-cartaz.grande {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'foto foto'
+      'texto texto'
+      'preco acoes';
+  }
+
+  .linha-cartaz.grande .riso {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* A linha se arranja pela largura do cartaz (os da direita são mais estreitos). */
+  .cartaz-precos {
+    container-type: inline-size;
+  }
+
+  @container (min-width: 34rem) {
+    .linha-cartaz {
+      grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+      grid-template-areas:
+        'foto texto preco'
+        'foto texto acoes';
+      column-gap: 1.25rem;
+    }
+
+    .linha-preco {
+      justify-self: end;
+      align-self: end;
+    }
+
+    .linha-cartaz.grande {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'foto foto'
+        'texto preco'
+        'texto acoes';
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .mural {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+      gap: 3.5rem 2.5rem;
+      padding-top: 3.5rem;
+    }
+
+    .cartaz-precos {
+      padding: 2.25rem 2rem 1.5rem;
+    }
+
+    .cartaz-so-eu {
+      grid-column: 1 / span 7;
+    }
+
+    .cartaz-a-dois {
+      grid-column: 8 / span 5;
+      margin-top: 7rem;
+    }
+
+    .cartaz-familia {
+      grid-column: 1 / span 7;
+    }
+
+    .cartaz-extras {
+      grid-column: 8 / span 5;
+      margin-top: -4rem;
+    }
+
+    .cartaz-prova {
+      grid-column: 2 / span 10;
+    }
+
+    .cartaz-entrega {
+      grid-column: 1 / span 6;
+    }
+
+    .cartaz-perguntas {
+      grid-column: 7 / span 6;
+      margin-top: 3rem;
+    }
+  }
+
+  /* ---------- Prova ---------- */
+  .cartaz-prova {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .cartaz-prova .riso {
+    aspect-ratio: 306 / 339;
+    max-width: 22rem;
+  }
+
+  .prova-texto {
+    display: grid;
+    gap: 0.9rem;
+    align-content: center;
+  }
+
+  .prova-texto h2 {
+    font-size: clamp(2.6rem, 12vw, 4.6rem);
+    margin-bottom: 0.25rem;
+  }
+
+  .prova-texto p {
+    max-width: 50ch;
+    font-size: 1.0625rem;
+    color: var(--tinta-2);
+  }
+
+  .seguidores strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.6rem;
+    color: var(--brasa-texto);
+  }
+
+  @media (min-width: 48rem) {
+    .cartaz-prova {
+      grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+      gap: 3rem;
+      padding: 2.5rem;
+    }
+  }
+
+  /* ---------- Entrega e perguntas ---------- */
+  .cartaz-entrega h2,
+  .cartaz-perguntas h2 {
+    font-size: clamp(2.6rem, 12vw, 4rem);
+    margin-bottom: 1.25rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-width: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .chips legend {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 0.75rem;
+    font-weight: 800;
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.4rem 0.95rem;
+    border: 2px solid var(--tinta);
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .chip input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .chip:has(input:focus-visible) {
+    outline: 3px solid var(--tinta);
+    outline-offset: 3px;
+  }
+
+  .chip:has(input:checked) {
+    background: var(--tinta);
+    color: var(--papel);
+  }
+
+  .resposta p {
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 800;
+  }
+
+  .fatos {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.25rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 3px solid var(--tinta);
+  }
+
+  .fatos dt {
+    font-weight: 600;
+  }
+
+  .fatos dd {
+    font-weight: 800;
+  }
+
+  details {
+    border-bottom: 2px solid var(--tinta);
+  }
+
+  summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.7rem 0;
+    font-weight: 800;
+    font-size: 1.0625rem;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: '+';
+    flex: none;
+    font-family: var(--display);
+    font-size: 1.6rem;
+    line-height: 1;
+    transition: rotate 0.3s var(--sai);
+  }
+
+  details[open] summary::after {
+    rotate: 45deg;
+  }
+
+  details p {
+    max-width: 60ch;
+    padding-bottom: 1.1rem;
+    color: var(--tinta-2);
+  }
+
+  /* ---------- Rodapé ---------- */
+  .rodape {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2rem;
+    align-items: center;
+    padding: 2.5rem var(--margem) calc(2.5rem + var(--folga-barra, 0px));
+    background: var(--tinta);
+    color: var(--papel);
+  }
+
+  [data-sacola='cheia'] {
+    --folga-barra: 5rem;
+  }
+
+  .rodape > img {
+    width: 6rem;
+    height: auto;
+  }
+
+  .rodape-texto {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .rodape ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    padding: 0;
+  }
+
+  .rodape a,
+  .rodape button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .rodape a:hover,
+  .rodape button:hover {
+    color: var(--mostarda);
+  }
+
+  .fino {
+    font-size: 0.8125rem;
+    opacity: 0.85;
+  }
+
+  .fino a {
+    display: inline;
+    min-height: 0;
+    text-decoration: underline;
+  }
+
+  /* ---------- Barra da sacola ---------- */
+  .barra {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: var(--z-barra);
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem var(--margem) calc(0.75rem + env(safe-area-inset-bottom));
+    pointer-events: none;
+    translate: 0 130%;
+    visibility: hidden;
+    transition:
+      translate 0.45s var(--sai),
+      visibility 0s 0.45s;
+  }
+
+  [data-sacola='cheia'] .barra {
+    translate: 0 0;
+    visibility: visible;
+    transition:
+      translate 0.45s var(--sai),
+      visibility 0s;
+  }
+
+  .barra-botao {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 32rem;
+    min-height: 3.5rem;
+    padding: 0 1.25rem;
+    background: var(--tinta);
+    color: var(--papel);
+    font-weight: 800;
+    text-align: left;
+    box-shadow: 0.35rem 0.35rem 0 var(--mostarda);
+  }
+
+  .barra-qtd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .barra-total {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    color: var(--mostarda);
+  }
+
+  /* ---------- Sacola: um cartaz mostarda ---------- */
+  .sacola {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(92dvh, 48rem);
+    margin: auto 0 0;
+    padding: 0;
+    border: 0;
+    background: var(--mostarda);
+    color: var(--tinta);
+    translate: 0 100%;
+    transition:
+      translate 0.4s var(--sai),
+      overlay 0.4s allow-discrete,
+      display 0.4s allow-discrete;
+  }
+
+  .sacola[open] {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .sacola[open] {
+      translate: 0 100%;
+    }
+  }
+
+  .sacola::backdrop {
+    background: oklch(0.19 0.02 50 / 0);
+    transition:
+      background-color 0.4s,
+      overlay 0.4s allow-discrete,
+      display 0.4s allow-discrete;
+  }
+
+  .sacola[open]::backdrop {
+    background: oklch(0.19 0.02 50 / 0.6);
+  }
+
+  @starting-style {
+    .sacola[open]::backdrop {
+      background: oklch(0.19 0.02 50 / 0);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .sacola {
+      width: min(29rem, 100%);
+      height: 100dvh;
+      max-height: 100dvh;
+      margin: 0 0 0 auto;
+      translate: 100% 0;
+    }
+
+    .sacola[open] {
+      translate: 0 0;
+    }
+
+    @starting-style {
+      .sacola[open] {
+        translate: 100% 0;
+      }
+    }
+  }
+
+  .sacola-caixa {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: inherit;
+  }
+
+  .sacola-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.75rem 0.75rem 1.25rem;
+    border-bottom: 4px solid var(--tinta);
+  }
+
+  .sacola-topo h2 {
+    font-size: 1.9rem;
+  }
+
+  .sacola-topo h2:focus {
+    outline: none;
+  }
+
+  .sacola-corpo {
+    flex: 1;
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+    padding: 0.25rem 1.25rem 1.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sacola-vazia {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    font-weight: 700;
+  }
+
+  [data-sacola='cheia'] .sacola-vazia,
+  [data-sacola='vazia'] .sacola-pe,
+  [data-sacola='vazia'] .sacola-corpo > :not(.sacola-vazia) {
+    display: none;
+  }
+
+  .sacola-lista {
+    list-style: none;
+    padding: 0;
+  }
+
+  .linha {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 2px solid var(--tinta);
+  }
+
+  .linha[data-nova] {
+    animation: carimba 0.35s var(--sai);
+  }
+
+  .linha-nome {
+    font-weight: 800;
+  }
+
+  .linha-sub {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    text-align: right;
+  }
+
+  .linha .qtd {
+    display: inline-flex;
+    justify-self: start;
+  }
+
+  .linha-remover {
+    justify-self: end;
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .upgrade {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--papel);
+    box-shadow: 0.3rem 0.3rem 0 var(--tinta);
+  }
+
+  .upgrade p {
+    font-weight: 800;
+    text-wrap: pretty;
+  }
+
+  .falta {
+    font-weight: 800;
+  }
+
+  .campos {
+    display: grid;
+    gap: 1.1rem;
+  }
+
+  .campo {
+    display: grid;
+    gap: 0.4rem;
+    font-weight: 800;
+    font-size: 0.9375rem;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.9rem;
+    border: 2px solid var(--tinta);
+    border-radius: 0;
+    background: var(--papel);
+    color: var(--tinta);
+    font-weight: 500;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 4.5rem;
+  }
+
+  ::placeholder {
+    color: oklch(0.45 0.02 60);
+    opacity: 1;
+  }
+
+  .resposta-curta {
+    margin-top: -0.6rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .chips-pequenos legend {
+    margin-bottom: 0.4rem;
+    font-size: 0.9375rem;
+  }
+
+  .sacola-pe {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem calc(0.5rem + env(safe-area-inset-bottom));
+    border-top: 4px solid var(--tinta);
+  }
+
+  .total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-weight: 800;
+  }
+
+  .total strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.9rem;
+  }
+
+  .botao-enviar {
+    width: 100%;
+    min-height: 3.5rem;
+    margin-bottom: 0.3rem;
+    padding-block: 0.6rem;
+    font-size: 0.95rem;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .gatilho {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .botao-texto {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* ---------- Aviso ---------- */
+  .aviso {
+    position: fixed;
+    left: 50%;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    z-index: var(--z-aviso);
+    width: max-content;
+    max-width: min(28rem, calc(100vw - 2.5rem));
+    padding: 0.75rem 1.1rem;
+    background: var(--mostarda);
+    color: var(--tinta);
+    font-weight: 800;
+    box-shadow: 0.25rem 0.25rem 0 var(--tinta);
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% 0.75rem;
+    rotate: -1deg;
+    transition:
+      opacity 0.25s,
+      translate 0.35s var(--sai);
+  }
+
+  .aviso[data-visivel] {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    .mural > .cartaz {
+      animation: none;
+    }
+
+    [data-loja='aberta'] .ponto::after {
+      display: none;
+    }
+  }
+</style>

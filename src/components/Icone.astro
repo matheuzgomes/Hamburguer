@@ -1,0 +1,44 @@
+---
+/** Ícones de traço simples (24×24), herdam a cor do texto. */
+interface Props {
+  nome: 'sacola' | 'whatsapp' | 'compartilhar' | 'mais' | 'menos' | 'fechar' | 'seta-baixo' | 'seta-esq' | 'seta-dir' | 'busca' | 'relogio' | 'moto' | 'instagram' | 'pausa' | 'play';
+  tamanho?: number;
+  class?: string;
+}
+
+const { nome, tamanho = 24, class: classe } = Astro.props;
+
+const caminhos: Record<Props['nome'], string> = {
+  sacola: '<path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  whatsapp:
+    '<path d="M4 20l1.3-3.9A8 8 0 1 1 8 19l-4 1Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.4-1.9-.9-.8.8a4 4 0 0 1-2-2l.8-.8-.9-1.9L9.5 9"/>',
+  compartilhar: '<path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M6 12v7h12v-7"/>',
+  mais: '<path d="M12 5v14M5 12h14"/>',
+  menos: '<path d="M5 12h14"/>',
+  fechar: '<path d="m6 6 12 12M18 6 6 18"/>',
+  'seta-baixo': '<path d="M12 5v14"/><path d="m6 13 6 6 6-6"/>',
+  'seta-esq': '<path d="m15 6-6 6 6 6"/>',
+  'seta-dir': '<path d="m9 6 6 6-6 6"/>',
+  busca: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  relogio: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  moto: '<circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M9 16h6l-2-6h-3M15 10h3l1 3"/>',
+  instagram: '<rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.8" cy="7.2" r=".6" fill="currentColor"/>',
+  pausa: '<path d="M9 6v12M15 6v12"/>',
+  play: '<path d="M8 6v12l10-6Z"/>',
+};
+---
+
+<svg
+  class={classe}
+  width={tamanho}
+  height={tamanho}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={caminhos[nome]}
+/>

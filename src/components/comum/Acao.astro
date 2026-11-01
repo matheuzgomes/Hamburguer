@@ -1,0 +1,23 @@
+---
+/** Botão "Adicionar" que vira seletor de quantidade quando o item está na sacola. Cada layout estiliza .acao, .botao-add e .qtd. */
+import Icone from '../Icone.astro';
+import type { Item } from '../../data/cardapio';
+
+interface Props {
+  item: Item;
+}
+
+const { item } = Astro.props;
+---
+
+<div class="acao">
+  <button type="button" class="botao-add" data-adicionar={item.slug}>
+    <Icone nome="mais" tamanho={18} />
+    <span class="rotulo-add">Adicionar</span><span class="sr-only"> {item.nome}</span>
+  </button>
+  <div class="qtd" role="group" aria-label={`Quantidade de ${item.nome} na sacola`}>
+    <button type="button" data-menos={item.slug} aria-label={`Tirar um ${item.nome}`}><Icone nome="menos" tamanho={18} /></button>
+    <output data-qtd={item.slug} aria-live="polite">0</output>
+    <button type="button" data-mais={item.slug} aria-label={`Mais um ${item.nome}`}><Icone nome="mais" tamanho={18} /></button>
+  </div>
+</div>

@@ -1,0 +1,37 @@
+---
+/** Uma linha da tabela de preços do cartaz (layout 2). `grande` usa a foto inteira em cima. */
+import Icone from '../Icone.astro';
+import Acao from '../comum/Acao.astro';
+import Preco from './Preco.astro';
+import { nomeCurto, nomesDestaques, resumo, type Item } from '../../data/cardapio';
+import { meioTom } from '../../lib/meio-tom';
+
+interface Props {
+  item: Item;
+  grande?: boolean;
+}
+
+const { item, grande = false } = Astro.props;
+const nome = nomeCurto(item);
+const imagem = meioTom(item.foto, grande ? 'g' : 'p');
+const comp = item.grupo === 'so-eu' && item.lanche ? item.lanche.composicao : resumo(item);
+---
+
+<li class:list={['linha-cartaz', { grande }]} id={item.slug} data-item={item.slug}>
+  <div class="riso">
+    <img src={imagem.src} width={imagem.width} height={imagem.height} alt={item.alt} loading="lazy" decoding="async" />
+  </div>
+  <div class="linha-texto">
+    {item.destaque && <p class:list={['selo', `selo-${item.destaque}`]}>{nomesDestaques[item.destaque]}</p>}
+    <h3>{nome}</h3>
+    {item.pessoas > 1 && <p class="serve">Serve {item.pessoas}</p>}
+    <p class="comp">{comp}</p>
+  </div>
+  <Preco centavos={item.preco} class="linha-preco" />
+  <div class="linha-acoes">
+    <Acao item={item} />
+    <button type="button" class="icone-botao" data-compartilhar={`item:${item.slug}`} aria-label={`Mandar o ${nome} pra alguém`}>
+      <Icone nome="compartilhar" tamanho={20} />
+    </button>
+  </div>
+</li>

@@ -1,0 +1,36 @@
+{
+  "name": "nossa-hamburgueria",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "node scripts/serve-dist.mjs",
+    "check": "astro check",
+    "check:dist": "node scripts/check-dist.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lighthouse": "node scripts/lighthouse.mjs",
+    "fotos": "node scripts/preparar-fotos.mjs",
+    "logo": "node scripts/vetorizar-logo.mjs",
+    "meio-tom": "node scripts/meio-tom.mjs"
+  },
+  "dependencies": {
+    "astro": "^7.4.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "imagetracerjs": "^1.2.6",
+    "lighthouse": "^13.6.0",
+    "sharp": "^0.35.5",
+    "svgo": "^4.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

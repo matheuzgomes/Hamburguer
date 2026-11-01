@@ -1,0 +1,68 @@
+---
+/**
+ * "Daqui até a sua casa" (layout 4): esquema fora de escala com a chapa em Cascadura e uma
+ * rota para cada bairro de entrega. As rotas se desenham com a rolagem (onde há suporte);
+ * escolher o bairro nos chips acende a rota dele (só CSS, com :has()).
+ * Posições aproximadas, seguindo a linha do trem (Madureira, Cascadura, Quintino, Piedade).
+ */
+import { loja } from '../../data/loja';
+
+const CENTRO = { x: 180, y: 150 };
+const pontos: Record<string, { x: number; y: number; lado: 'esq' | 'dir' | 'baixo' | 'cima' }> = {
+  Madureira: { x: 52, y: 178, lado: 'baixo' },
+  Campinho: { x: 140, y: 262, lado: 'baixo' },
+  Quintino: { x: 282, y: 148, lado: 'baixo' },
+  Piedade: { x: 326, y: 92, lado: 'cima' },
+  Abolição: { x: 258, y: 48, lado: 'cima' },
+  'Tomás Coelho': { x: 132, y: 38, lado: 'cima' },
+};
+const rotas = loja.bairros
+  .filter((b) => b in pontos)
+  .map((bairro, i) => {
+    const p = pontos[bairro]!;
+    // Curva suave saindo da chapa: o controle puxa para o lado, como rua de verdade.
+    const cx = (CENTRO.x + p.x) / 2 + (i % 2 ? 22 : -22);
+    const cy = (CENTRO.y + p.y) / 2 + (i % 2 ? -14 : 14);
+    return { bairro, ...p, d: `M${CENTRO.x} ${CENTRO.y}Q${cx} ${cy} ${p.x} ${p.y}` };
+  });
+
+// Acende a rota do bairro escolhido nos chips (e apaga as outras).
+const css = rotas
+  .map(
+    (r, i) =>
+      `.entrega:has(input[value="${r.bairro}"]:checked) .rota-${i}{--rota-cor:var(--tinta);--rota-largura:7}` +
+      `.entrega:has(input[value="${r.bairro}"]:checked) .parada-${i}{--parada-escala:1.35}`,
+  )
+  .join('');
+---
+
+<figure class="rota">
+  <svg viewBox="0 0 360 300" role="img" aria-labelledby="t-rota-mapa">
+    <title id="t-rota-mapa">
+      Esquema fora de escala: a cozinha em {loja.bairroBase} e as rotas até {rotas.map((r) => r.bairro).join(', ')}.
+    </title>
+    <path class="trem" d="M8 186 L52 178 L180 150 L282 148 L326 92 L352 70" />
+    <text class="trem-rotulo" x="66" y="160" transform="rotate(-12 66 160)">linha do trem</text>
+    {rotas.map((r, i) => <path class={`rota-linha rota-${i}`} d={r.d} pathLength="1" />)}
+    {
+      rotas.map((r, i) => (
+        <g class={`parada parada-${i}`} style={`transform-origin: ${r.x}px ${r.y}px`}>
+          <circle cx={r.x} cy={r.y} r="7" />
+          <text
+            x={r.x}
+            y={r.lado === 'cima' ? r.y - 14 : r.y + 24}
+            text-anchor={r.x > 300 ? 'end' : r.x < 70 ? 'start' : 'middle'}
+          >
+            {r.bairro}
+          </text>
+        </g>
+      ))
+    }
+    <g class="chapa">
+      <circle cx={CENTRO.x} cy={CENTRO.y} r="16" />
+      <text x={CENTRO.x + 4} y={CENTRO.y + 40} text-anchor="middle">{loja.bairroBase}</text>
+    </g>
+  </svg>
+  <figcaption>Fora de escala. A chapa fica em {loja.bairroBase}.</figcaption>
+</figure>
+<style is:inline set:html={css}></style>

@@ -1,0 +1,113 @@
+---
+/**
+ * O Nosso Clássico desmontado em camadas (layout 4), no traço chapado do ícone da logo:
+ * uma cor só, com os vazados mostrando o fundo. Parado, fica aberto com a legenda de cada
+ * camada; com a rolagem (onde o navegador suporta), as camadas descem e o lanche se monta.
+ */
+import Acao from '../comum/Acao.astro';
+import { porSlug } from '../../data/cardapio';
+import { preco } from '../../lib/dinheiro';
+
+const item = porSlug.get('combo-nosso-classico')!;
+
+/** Furinho redondo (gergelim, textura da carne), para vazar com fill-rule="evenodd". */
+const furo = (x: number, y: number, rx: number, ry = rx) =>
+  `M${x - rx} ${y}a${rx} ${ry} 0 1 0 ${rx * 2} 0a${rx} ${ry} 0 1 0 ${-rx * 2} 0Z`;
+
+const gergelim = [
+  [64, 30],
+  [100, 19],
+  [136, 30],
+  [82, 49],
+  [118, 49],
+  [46, 55],
+  [154, 55],
+]
+  .map(([x, y]) => furo(x, y, 6.5, 3.6))
+  .join('');
+const textura = [
+  [30, 14],
+  [58, 26],
+  [84, 12],
+  [112, 27],
+  [140, 13],
+  [166, 25],
+  [44, 28],
+  [126, 15],
+]
+  .map(([x, y]) => furo(x, y, 2.6))
+  .join('');
+
+const camadas = [
+  {
+    nome: 'Pão brioche',
+    nota: 'macio, em cima',
+    altura: 80,
+    d: `M8 72C8 30 48 6 100 6s92 24 92 66q0 6-6 6H14q-6 0-6-6Z${gergelim}`,
+  },
+  {
+    nome: 'Molho da casa',
+    nota: 'receita nossa',
+    altura: 22,
+    d: 'M10 2h180q8 0 4 7-8 5-14 10-7 4-11-4-6-7-20-3-12 4-19 9-8 3-12-5-6-7-21-3-12 4-21 9-8 2-12-6-6-7-22-3-14 4-22 8-11 2-12-8-1-6 5-6Z',
+  },
+  {
+    nome: 'Cheddar',
+    nota: 'derretido',
+    altura: 28,
+    d: 'M2 2h196l-6 7-8 17-8-17h-44l-8 18-8-18H72l-10 15-8-15H8Z',
+  },
+  {
+    nome: 'Bacon',
+    nota: 'crocante',
+    altura: 24,
+    d: 'M2 9q25-10 50 0t50 0 50 0 46 0v8q-23 10-48 0t-50 0-50 0-48 0Z',
+  },
+  {
+    nome: 'Blend 150 g',
+    nota: 'moído aqui',
+    altura: 40,
+    d: `M14 2h172q12 0 12 12v12q0 12-12 12H14Q2 38 2 26V14Q2 2 14 2Z${textura}`,
+  },
+  {
+    nome: 'Cebola',
+    nota: 'caramelizada no ponto',
+    altura: 18,
+    traco: true,
+    d: 'M12 9c9-9 18 9 27 0s18 9 27 0 18 9 27 0 18 9 27 0 18 9 27 0 18 9 27 0',
+  },
+  {
+    nome: 'Pão brioche',
+    nota: 'segura tudo isso',
+    altura: 30,
+    d: 'M10 2h180q6 0 6 6v8q0 12-14 12H18Q4 28 4 16V8q0-6 6-6Z',
+  },
+];
+const meio = (camadas.length - 1) / 2;
+---
+
+<figure class="montagem" aria-labelledby="t-montagem">
+  <ol class="camadas">
+    {
+      camadas.map((c, i) => (
+        <li class="camada" style={`--i: ${i - meio}`}>
+          <svg class="fatia" viewBox={`0 0 200 ${c.altura}`} style={`aspect-ratio: 200 / ${c.altura}`} aria-hidden="true">
+            {c.traco ? (
+              <path d={c.d} fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" />
+            ) : (
+              <path d={c.d} fill="currentColor" fill-rule="evenodd" />
+            )}
+          </svg>
+          <span class="camada-rotulo">
+            <strong>{c.nome}</strong> {c.nota}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+  <figcaption class="montagem-pe" data-item={item.slug}>
+    <span id="t-montagem" class="montagem-nome">Isso é um Nosso Clássico</span>
+    <span class="montagem-preco">{preco(item.preco)} com batata e Coca</span>
+    <Acao item={item} />
+  </figcaption>
+</figure>

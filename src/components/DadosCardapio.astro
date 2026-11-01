@@ -1,0 +1,18 @@
+---
+/** O mínimo que o navegador precisa para a sacola: nome, preço e degrau de upgrade. */
+import { cardapio } from '../data/cardapio';
+import { loja } from '../data/loja';
+import { entrega } from '../data/textos';
+
+const dados = {
+  itens: cardapio.map(({ slug, nome, preco, upgrade }) => (upgrade ? { slug, nome, preco, upgrade } : { slug, nome, preco })),
+  whatsapp: loja.whatsapp,
+  pedidoMinimo: loja.entrega.pedidoMinimo,
+  horario: { abre: loja.horario.abre, fecha: loja.horario.fecha, fuso: loja.horario.fuso },
+  bairros: loja.bairros,
+  respostaSim: `Entregamos em {bairro}. ${entrega.taxa} ${entrega.tempo}`,
+  respostaNao: entrega.outroBairro,
+};
+---
+
+<script type="application/json" id="dados-cardapio" set:html={JSON.stringify(dados)} />

@@ -1,0 +1,18 @@
+---
+/** Preço de cartaz: "R$" e centavos pequenos, reais enormes. O leitor de tela ouve o preço inteiro. */
+import { preco } from '../../lib/dinheiro';
+
+interface Props {
+  centavos: number;
+  class?: string;
+}
+
+const { centavos, class: classe } = Astro.props;
+const reais = Math.floor(centavos / 100);
+const cent = String(centavos % 100).padStart(2, '0');
+---
+
+<span class:list={['preco', classe]}>
+  <span class="sr-only">{preco(centavos)}</span>
+  <span class="preco-visivel" aria-hidden="true"><span class="rs">R$</span><span class="reais">{reais}</span><span class="cent">,{cent}</span></span>
+</span>

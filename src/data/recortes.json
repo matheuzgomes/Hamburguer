@@ -1,0 +1,314 @@
+{
+  "$comentario": "Recortes das referências (nossa-hamburgueria-referencias/, fora do git) para src/assets/fotos/. Coordenadas em pixels do arquivo de origem: l = esquerda, t = topo, w = largura, h = altura. Só comida e embalagem: sem texto de arte, preço, interface do Instagram ou pessoas. Rode `npm run fotos`.",
+  "origem": "nossa-hamburgueria-referencias",
+  "recortes": {
+    "combo-nosso-smash": {
+      "de": "cardapio/cardapio--combo-nosso-smash.png",
+      "l": 0,
+      "t": 330,
+      "w": 692,
+      "h": 470
+    },
+    "combo-smash-bacon": {
+      "de": "cardapio/cardapio--combo-smash-bacon.png",
+      "l": 150,
+      "t": 500,
+      "w": 400,
+      "h": 355
+    },
+    "combo-duplo-smash-bacon": {
+      "de": "cardapio/cardapio--combo-duplo-smash-bacon.png",
+      "l": 30,
+      "t": 505,
+      "w": 410,
+      "h": 380
+    },
+    "combo-triplo-smash-bacon": {
+      "de": "cardapio/cardapio--combo-triplo-smash-bacon.png",
+      "l": 170,
+      "t": 520,
+      "w": 420,
+      "h": 400
+    },
+    "combo-nosso-classico": {
+      "de": "cardapio/cardapio--combo-nosso-classico.png",
+      "l": 0,
+      "t": 400,
+      "w": 580,
+      "h": 440
+    },
+    "combo-classico-catupiry": {
+      "de": "cardapio/cardapio--combo-classico-catupiry.png",
+      "l": 0,
+      "t": 560,
+      "w": 692,
+      "h": 410
+    },
+    "combo-nosso-leve": {
+      "de": "cardapio/cardapio--combo-nosso-leve.png",
+      "l": 0,
+      "t": 330,
+      "w": 692,
+      "h": 500
+    },
+    "combo-duplo-smash-salada": {
+      "de": "cardapio/cardapio--nosso-duplo-smash-salada.png",
+      "l": 170,
+      "t": 450,
+      "w": 375,
+      "h": 370
+    },
+    "combo-nosso-fit": {
+      "de": "cardapio/cardapio--combo-nosso-fit.png",
+      "l": 0,
+      "t": 440,
+      "w": 540,
+      "h": 355
+    },
+    "combo-nosso-crocante": {
+      "de": "cardapio/cardapio--combo-nosso-crocante.png",
+      "l": 0,
+      "t": 455,
+      "w": 692,
+      "h": 560
+    },
+    "combo-nosso-supremo": {
+      "de": "cardapio/cardapio--combo-nosso-supremo.png",
+      "l": 160,
+      "t": 360,
+      "w": 355,
+      "h": 420
+    },
+    "combo-nosso-chicken": {
+      "de": "cardapio/cardapio--comho-nosso-chiken.png",
+      "l": 100,
+      "t": 410,
+      "w": 460,
+      "h": 470
+    },
+    "casal-smash-bacon": {
+      "de": "cardapio/cardapio--combo-casal-smash-bacon.png",
+      "l": 0,
+      "t": 505,
+      "w": 692,
+      "h": 335
+    },
+    "casal-duplo-smash-bacon": {
+      "de": "cardapio/cardapio--combo-casal-duplo-smash-bacon.png",
+      "l": 0,
+      "t": 395,
+      "w": 692,
+      "h": 500
+    },
+    "casal-classico": {
+      "de": "cardapio/cardapio--combo-casal-classico.png",
+      "l": 0,
+      "t": 390,
+      "w": 692,
+      "h": 445
+    },
+    "casal-classico-catupiry": {
+      "de": "cardapio/cardapio--combo-casal-classico-catupiry.png",
+      "l": 0,
+      "t": 505,
+      "w": 692,
+      "h": 420
+    },
+    "casal-fit": {
+      "de": "cardapio/cardapio--combo-casal-fit.png",
+      "l": 0,
+      "t": 365,
+      "w": 692,
+      "h": 430
+    },
+    "casal-leve": {
+      "de": "cardapio/cardapio--combo-casal-leve.png",
+      "l": 0,
+      "t": 320,
+      "w": 692,
+      "h": 535
+    },
+    "casal-crocante": {
+      "de": "cardapio/cardapio--combo-casal-nosso-crocante.png",
+      "l": 0,
+      "t": 480,
+      "w": 692,
+      "h": 500
+    },
+    "casal-triplo-smash-bacon": {
+      "de": "cardapio/cardapio--combo-casal-triplo-smash-bacon.png",
+      "l": 0,
+      "t": 490,
+      "w": 692,
+      "h": 450
+    },
+    "casal-supremo": {
+      "de": "cardapio/cardapio--combo-casal-supremo.png",
+      "l": 0,
+      "t": 350,
+      "w": 692,
+      "h": 510
+    },
+    "casal-chicken": {
+      "de": "cardapio/cardapio--combo-nosso-chiken.png",
+      "l": 0,
+      "t": 470,
+      "w": 692,
+      "h": 500
+    },
+    "combo-do-dia": {
+      "de": "cardapio/cardapio--dois-nosso-classico-coca-cola-15l.png",
+      "l": 310,
+      "t": 520,
+      "w": 370,
+      "h": 320
+    },
+    "combo-nossa": {
+      "de": "cardapio/cardapio--nosso-combo.png",
+      "l": 20,
+      "t": 520,
+      "w": 660,
+      "h": 212
+    },
+    "familia-1": {
+      "de": "cardapio/cardapio--combo-familia-1.png",
+      "l": 0,
+      "t": 390,
+      "w": 692,
+      "h": 385
+    },
+    "familia-2": {
+      "de": "cardapio/cardapio--combo-familia-2.png",
+      "l": 0,
+      "t": 300,
+      "w": 692,
+      "h": 485
+    },
+    "batata-cheddar-bacon": {
+      "de": "cardapio/cardapio--batata-com-molho-de-cheddar-e-farofa-de-bacon.png",
+      "l": 0,
+      "t": 385,
+      "w": 692,
+      "h": 430
+    },
+    "porcao-nuggets": {
+      "de": "cardapio/cardapio--porcao-nugets-ou-aneis-de-cebola.png",
+      "l": 0,
+      "t": 500,
+      "w": 345,
+      "h": 245
+    },
+    "porcao-aneis-de-cebola": {
+      "de": "cardapio/cardapio--porcao-nugets-ou-aneis-de-cebola.png",
+      "l": 330,
+      "t": 515,
+      "w": 362,
+      "h": 235
+    },
+    "ig-duplo-smash-bacon": {
+      "de": "instagram/produto/DajC601O9Gk--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 601,
+      "h": 601
+    },
+    "ig-duplo-pretzel": {
+      "de": "instagram/produto/DYaq0CjJf6t--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 601,
+      "h": 601
+    },
+    "ig-pretzel-com-batata": {
+      "de": "instagram/produto/DYdR6CBN33L--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 601,
+      "h": 601
+    },
+    "ig-crocante": {
+      "de": "instagram/produto/DYiQnhLBmqN--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 601,
+      "h": 601
+    },
+    "ig-leve": {
+      "de": "instagram/produto/DYk71u2hims--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 503,
+      "h": 669
+    },
+    "ig-supremo": {
+      "de": "instagram/produto/DZY1iOTtVrA--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 510,
+      "h": 638
+    },
+    "ig-salada-1": {
+      "de": "instagram/produto/DZvvT3GDRy7--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 478,
+      "h": 580
+    },
+    "ig-salada-2": {
+      "de": "instagram/produto/DZvvT3GDRy7--2.png",
+      "l": 0,
+      "t": 0,
+      "w": 478,
+      "h": 580
+    },
+    "ig-triplo-cheddar": {
+      "de": "instagram/produto/DaEWzrpt1Tx--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 601,
+      "h": 601
+    },
+    "ig-blend-cru": {
+      "de": "instagram/produto/DaJXAQCPXfg--1.png",
+      "l": 0,
+      "t": 190,
+      "w": 601,
+      "h": 140
+    },
+    "ig-supremo-escuro": {
+      "de": "instagram/produto/DbbpeibR-jL--1.png",
+      "l": 0,
+      "t": 170,
+      "w": 440,
+      "h": 499
+    },
+    "ig-chicken": {
+      "de": "instagram/produto/DefV0sBB9W2--1.png",
+      "l": 0,
+      "t": 0,
+      "w": 525,
+      "h": 525
+    },
+    "ig-moedor": {
+      "de": "instagram/reels/DawOGZct3Dr--cover.png",
+      "l": 70,
+      "t": 330,
+      "w": 306,
+      "h": 339
+    },
+    "ig-salada-reel": {
+      "de": "instagram/reels/DbwM2QyT_0D--cover.png",
+      "l": 70,
+      "t": 130,
+      "w": 306,
+      "h": 539
+    },
+    "ig-chicken-reel": {
+      "de": "instagram/reels/DeXg3a3RjHB--cover.png",
+      "l": 70,
+      "t": 120,
+      "w": 306,
+      "h": 549
+    }
+  }
+}

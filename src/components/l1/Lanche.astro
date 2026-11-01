@@ -1,0 +1,36 @@
+---
+/** Cartão de um item na faixa horizontal (layout 1). */
+import Foto from '../Foto.astro';
+import Icone from '../Icone.astro';
+import Acao from '../comum/Acao.astro';
+import { nomeCurto, nomesDestaques, resumo, type Item } from '../../data/cardapio';
+import { preco } from '../../lib/dinheiro';
+
+interface Props {
+  item: Item;
+}
+
+const { item } = Astro.props;
+const nome = nomeCurto(item);
+// Em "Pra um" o subtítulo da seção já diz que todo combo vem com batata e lata.
+const comp = item.grupo === 'so-eu' && item.lanche ? item.lanche.composicao : resumo(item);
+---
+
+<li class="lanche" id={item.slug} data-item={item.slug}>
+  <div class="lanche-foto">
+    <Foto nome={item.foto} alt={item.alt} larguras={[320, 480, 640]} sizes="(min-width: 64rem) 19rem, 80vw" />
+    {item.destaque && <span class:list={['selo', `selo-${item.destaque}`]}>{nomesDestaques[item.destaque]}</span>}
+    <button type="button" class="lanche-compartilhar" data-compartilhar={`item:${item.slug}`} aria-label={`Mandar o ${nome} pra alguém`}>
+      <Icone nome="compartilhar" tamanho={20} />
+    </button>
+  </div>
+  <div class="lanche-corpo">
+    <h3>{nome}</h3>
+    {item.pessoas > 1 && <p class="serve">Serve {item.pessoas}</p>}
+    <p class="comp">{comp}</p>
+    <div class="lanche-pe">
+      <p class="preco">{preco(item.preco)}</p>
+      <Acao item={item} />
+    </div>
+  </div>
+</li>

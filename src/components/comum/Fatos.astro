@@ -1,0 +1,18 @@
+---
+/** Entrega, tempo, mínimo, horário e pagamento, numa lista de definição. */
+import { loja } from '../../data/loja';
+import { preco } from '../../lib/dinheiro';
+---
+
+<dl class="fatos">
+  <dt>Entrega</dt>
+  <dd>{loja.entrega.gratisNosBairros ? 'Grátis nos bairros atendidos' : 'Taxa informada no WhatsApp'}</dd>
+  <dt>Tempo</dt>
+  <dd>{loja.entrega.tempo}</dd>
+  <dt>Mínimo</dt>
+  <dd>{preco(loja.entrega.pedidoMinimo)}</dd>
+  <dt>Horário</dt>
+  <dd>{loja.horario.texto}</dd>
+  <dt>Pagamento</dt>
+  <dd>{loja.pagamentos.join(', ')}</dd>
+</dl>

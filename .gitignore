@@ -1,0 +1,15 @@
+# material bruto (86 MB) — fica fora do git; os recortes tratados vão para src/assets
+nossa-hamburgueria-referencias/
+*:Zone.Identifier
+
+node_modules/
+dist/
+.astro/
+.lighthouse/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+.DS_Store
+.prints

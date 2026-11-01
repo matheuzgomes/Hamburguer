@@ -1,0 +1,13 @@
+---
+/** Perguntas frequentes em <details> (as dúvidas que travam o pedido). */
+import { perguntas } from '../../data/textos';
+---
+
+{
+  perguntas.map((p) => (
+    <details>
+      <summary>{p.pergunta}</summary>
+      <p>{p.resposta}</p>
+    </details>
+  ))
+}

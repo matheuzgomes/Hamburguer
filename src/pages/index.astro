@@ -1,0 +1,588 @@
+---
+/**
+ * Página de escolha (só durante os testes): os 4 layouts lado a lado, com prints, números e
+ * pontos fortes e fracos. Sai na Etapa 3, quando o escolhido vira o site.
+ * Números medidos em 01/11/2026: Lighthouse no celular (scripts/lighthouse.mjs), JS e fontes
+ * do npm run check:dist, altura da página no print de 390 px de largura.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+const prints = import.meta.glob<{ default: ImageMetadata }>('../assets/comparativo/*.webp', { eager: true });
+const print = (layout: string, nome: string) => prints[`../assets/comparativo/${layout}-${nome}.webp`]!.default;
+
+interface Layout {
+  slug: string;
+  numero: number;
+  nome: string;
+  frase: string;
+  cena: string;
+  cor: string;
+  acha: string;
+  movimento: string;
+  gancho: string;
+  fortes: string[];
+  fracos: string[];
+  falta?: string;
+  numeros: { lighthouse: string; lcp: string; peso: string; js: string; fontes: number; altura: string };
+}
+
+const layouts: Layout[] = [
+  {
+    slug: '1-noite-de-chapa',
+    numero: 1,
+    nome: 'Noite de chapa',
+    frase: 'A identidade de hoje, mais limpa e com cara de cinema.',
+    cena: '21h, no sofá, celular com brilho baixo e fome. Por isso é escuro.',
+    cor: 'Preto da marca, texto creme e mostarda só nos detalhes.',
+    acha: 'Abas "pra quantos?" fixas no topo e uma faixa por grupo que corre de lado, como os Stories.',
+    movimento: 'A foto da abertura assenta num zoom lento e o ponto de "aberto" pulsa como brasa.',
+    gancho: 'Compartilhar cada lanche e o link "Pede igual".',
+    fortes: [
+      'É o mais fiel à marca atual: quem segue no Instagram reconhece na hora.',
+      'A foto grande do Supremo na abertura dá fome.',
+      'O campeão de vendas tem uma linha própria logo abaixo do título, com o botão de adicionar.',
+    ],
+    fracos: [
+      'As faixas escondem itens: no celular aparecem um lanche e meio por grupo, sem busca nem visão geral do cardápio.',
+      'Preto com mostarda é o visual de quase toda hamburgueria.',
+      'É o mais pesado (582 KB), por causa das fotos grandes nas faixas.',
+    ],
+    falta: 'O cartão do lanche no formato Story ficou de fora.',
+    numeros: { lighthouse: '99 · 100 · 100', lcp: '2,0 s', peso: '582 KB', js: '4,7 KB', fontes: 1, altura: '6.000 px' },
+  },
+  {
+    slug: '2-lambe-lambe',
+    numero: 2,
+    nome: 'Lambe-lambe',
+    frase: 'A marca como cartaz colado no poste do bairro.',
+    cena: 'Cartaz no poste, sol do meio-dia na Zona Norte. Por isso é claro e berrante.',
+    cor: 'Paleta cheia: mostarda, preto, creme e brasa, sobrepostos como impressão.',
+    acha: 'Abas fixas e o cardápio como tabela de preços de cartaz; os destaques ganham cartaz grande.',
+    movimento: 'Cada cartaz é "colado" quando entra na tela e uma faixa corre com o horário (com botão de pausa).',
+    gancho: 'Compartilhar cada lanche e o link "Pede igual".',
+    fortes: [
+      'É o mais diferente de qualquer concorrente: ninguém confunde com outra loja.',
+      'Os preços são enormes e fáceis de ler.',
+      'O meio-tom de risografia esconde a resolução baixa das fotos.',
+    ],
+    fracos: [
+      'É a página mais longa no celular (12.300 px).',
+      'O meio-tom tira a cor real da comida, e o lanche dá menos fome que em foto.',
+      'A letra de madeira é pesada e pede contenção para não virar panfleto.',
+    ],
+    falta: 'O "cartaz do dia" para compartilhar ficou de fora.',
+    numeros: { lighthouse: '100 · 100 · 100', lcp: '1,8 s', peso: '116 KB', js: '5,0 KB', fontes: 1, altura: '12.300 px' },
+  },
+  {
+    slug: '3-comanda',
+    numero: 3,
+    nome: 'Comanda',
+    frase: 'O jeito mais rápido de pedir.',
+    cena: '18h50 no trem, uma mão no celular, decidindo em 30 segundos. Por isso é claro.',
+    cor: 'Branco neutro e tinta preta; a mostarda aparece como marca-texto e carimbo.',
+    acha: 'Busca que ignora acento, filtro por ingrediente e abas; lista densa com miniaturas. No computador, o cupom fica ao lado somando.',
+    movimento: 'O cupom imprime uma linha a cada item e "Pedido pronto" é carimbado quando você envia.',
+    gancho: 'Compartilhar cada lanche e o link "Pede igual".',
+    fortes: [
+      'Acha qualquer item em segundos, digitando ou filtrando.',
+      'O pedido mínimo e o tempo de entrega aparecem já na abertura.',
+      'O cupom dá personalidade sem atrapalhar o pedido.',
+    ],
+    fracos: [
+      'É o menos "uau" dos quatro, e o que menos dá vontade de mostrar para os outros.',
+      'Fica perto da cara de um app de delivery.',
+      'As fotos pequenas vendem menos o lanche.',
+    ],
+    falta: 'A foto do cupom "Meu pedido de hoje" ficou de fora; o link "Pede igual" cumpre esse papel.',
+    numeros: { lighthouse: '100 · 100 · 100', lcp: '0,9 s', peso: '267 KB', js: '5,8 KB', fontes: 2, altura: '7.000 px' },
+  },
+  {
+    slug: '4-mostarda',
+    numero: 4,
+    nome: 'Mostarda',
+    frase: 'A cor da marca vira o site.',
+    cena: 'Sábado à noite, o grupo decide onde pedir e alguém manda o link. Por isso é mostarda de ponta a ponta.',
+    cor: 'A página inteira em mostarda, com tinta preta e creme.',
+    acha: 'Filtro por ingrediente ("Só com: bacon, cheddar…") e abas fixas; lista com a foto em adesivo redondo.',
+    movimento:
+      'O Nosso Clássico abre em camadas, no traço do ícone da logo, e se monta com a rolagem. As rotas de Cascadura até os bairros se desenham, e a do seu bairro acende.',
+    gancho: '"Qual é o seu?": a pessoa marca até 3 ingredientes, recebe o lanche e manda pro grupo. Mais o "Pede igual".',
+    fortes: [
+      'É o mais próprio: usa o desenho do ícone da logo como peça gráfica.',
+      'O "Qual é o seu?" é o melhor gancho de grupo: cada um faz e manda o resultado.',
+      'É leve (134 KB) e abre rápido (LCP 0,9 s).',
+    ],
+    fracos: [
+      'O cardápio começa depois da abertura e do quiz. O botão "Ver o cardápio" leva direto, mas quem rola demora mais a chegar.',
+      'Não tem busca por texto, só o filtro por ingrediente.',
+      'Em navegador sem animação por rolagem, o lanche fica aberto e parado. Funciona, mas perde a graça.',
+    ],
+    numeros: { lighthouse: '100 · 100 · 100', lcp: '0,9 s', peso: '134 KB', js: '6,3 KB', fontes: 1, altura: '10.900 px' },
+  },
+];
+
+const linhas: { rotulo: string; valor: (l: Layout) => string }[] = [
+  { rotulo: 'Cena', valor: (l) => l.cena },
+  { rotulo: 'Cor', valor: (l) => l.cor },
+  { rotulo: 'Como acha o lanche', valor: (l) => l.acha },
+  { rotulo: 'Movimento', valor: (l) => l.movimento },
+  { rotulo: 'Boca a boca', valor: (l) => l.gancho },
+  { rotulo: 'Lighthouse no celular', valor: (l) => `${l.numeros.lighthouse} (desempenho, acessibilidade, boas práticas)` },
+  { rotulo: 'Primeira pintura grande (LCP)', valor: (l) => l.numeros.lcp },
+  { rotulo: 'Peso no celular', valor: (l) => l.numeros.peso },
+  { rotulo: 'JavaScript', valor: (l) => `${l.numeros.js} gzip` },
+  { rotulo: 'Altura no celular', valor: (l) => l.numeros.altura },
+];
+
+const comuns = [
+  'Em 5 segundos a pessoa sabe o quê (hambúrguer artesanal de chapa), pra quem (entrega em Cascadura e vizinhança) e se está aberto agora.',
+  'Cardápio a um toque, com as abas "pra quantos?" fixas no topo.',
+  'Todo item com foto, o que vem, preço sempre à vista e botão "Adicionar" de 44 px ou mais.',
+  'Sacola sempre à vista com o total; pedido mínimo e entrega aparecem antes de abrir o WhatsApp.',
+  'O texto do botão acompanha a etapa: "Adicionar", depois o botão da sacola, depois "Enviar pedido no WhatsApp", com uma linha embaixo que tira a dúvida.',
+  'Fechado também vende: fora do horário o botão vira "Deixar pedido pronto, abrimos às 19h".',
+  'Sugestão de upgrade na sacola só onde o preço é real (Smash → Smash Bacon → Duplo → Triplo).',
+  '"Entrega no meu bairro?" respondido na hora e as 6 dúvidas que travam o pedido.',
+  'Link "Pede igual": quem recebe abre o site com a mesma sacola montada.',
+  'A sacola fica guardada no aparelho; recarregar a página não perde o pedido.',
+  'Acessibilidade WCAG 2.2 AA (axe sem violações com a sacola aberta e fechada), teclado e movimento reduzido.',
+];
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nossa Hamburgueria · os 4 layouts de teste</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#f6f6f4" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="topo">
+      <p class="marca">Nossa Hamburgueria · layouts de teste</p>
+      <h1>Escolha o caminho do site</h1>
+      <p class="lead">
+        Os quatro têm o mesmo cardápio, a mesma sacola que manda o pedido pro WhatsApp e o mesmo link "Pede igual". Muda a cor
+        que manda, o jeito de achar o lanche, a letra e o movimento. Abra cada um no celular: é lá que a maioria vai pedir.
+      </p>
+      <ol class="atalhos">
+        {
+          layouts.map((l) => (
+            <li>
+              <a href={`/teste/${l.slug}/`}>
+                <span class="num">{l.numero}</span>
+                <span>
+                  <strong>{l.nome}</strong>
+                  <span class="atalho-frase">{l.frase}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </header>
+
+    <main>
+      <section aria-labelledby="t-lado">
+        <h2 id="t-lado">Lado a lado</h2>
+        <div class="tabela-rolagem" tabindex="0" role="region" aria-labelledby="t-lado">
+          <table>
+            <thead>
+              <tr>
+                <td></td>
+                {layouts.map((l) => <th scope="col">{l.numero}. {l.nome}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {
+                linhas.map((linha) => (
+                  <tr>
+                    <th scope="row">{linha.rotulo}</th>
+                    {layouts.map((l) => (
+                      <td>{linha.valor(l)}</td>
+                    ))}
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {
+        layouts.map((l) => (
+          <section class="layout" id={l.slug} aria-labelledby={`t-${l.slug}`}>
+            <div class="layout-cabeca">
+              <h2 id={`t-${l.slug}`}>
+                <span class="num">{l.numero}</span> {l.nome}
+              </h2>
+              <p>{l.frase}</p>
+              <a class="abrir" href={`/teste/${l.slug}/`}>Abrir o layout {l.numero}</a>
+            </div>
+            <div class="prints">
+              <figure class="print-celular">
+                <Image src={print(l.slug, 'celular-1-tela')} alt={`Layout ${l.numero} no celular, primeira tela`} widths={[300, 600]} sizes="(min-width: 64rem) 15rem, 42vw" />
+                <figcaption>Celular, primeira tela</figcaption>
+              </figure>
+              <figure class="print-celular">
+                <Image src={print(l.slug, 'celular-4-sacola')} alt={`Layout ${l.numero} no celular, sacola aberta com 2 itens`} widths={[300, 600]} sizes="(min-width: 64rem) 15rem, 42vw" />
+                <figcaption>Celular, sacola aberta</figcaption>
+              </figure>
+              <figure class="print-computador">
+                <Image src={print(l.slug, 'computador-1-tela')} alt={`Layout ${l.numero} no computador, primeira tela`} widths={[640, 1280]} sizes="(min-width: 64rem) 34rem, 100vw" />
+                <figcaption>Computador, primeira tela</figcaption>
+              </figure>
+            </div>
+            <div class="avaliacao">
+              <div>
+                <h3>A favor</h3>
+                <ul>
+                  {l.fortes.map((f) => (
+                    <li>{f}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3>Contra</h3>
+                <ul>
+                  {l.fracos.map((f) => (
+                    <li>{f}</li>
+                  ))}
+                </ul>
+                {l.falta && <p class="falta">{l.falta}</p>}
+              </div>
+            </div>
+          </section>
+        ))
+      }
+
+      <section class="recomendacao" aria-labelledby="t-recomendacao">
+        <h2 id="t-recomendacao">Minha aposta</h2>
+        <p>
+          <strong>O 4, Mostarda.</strong> É o que mais parece a Nossa e nenhuma outra loja, porque usa o desenho do ícone da logo. O
+          "Qual é o seu?" foi feito para o grupo de WhatsApp, que é onde o boca a boca acontece. E é o segundo mais leve. O ponto
+          fraco é o caminho até o cardápio para quem só rola a página. Se escolher o 4, dá para trazer a busca do 3 para a barra de
+          abas e resolver isso.
+        </p>
+        <p>
+          Se a prioridade for pedir rápido, sem firula, o 3 é o mais eficiente. Se for não mexer na cara que o público já conhece, o 1.
+        </p>
+      </section>
+
+      <section aria-labelledby="t-comum">
+        <h2 id="t-comum">O que os quatro já fazem</h2>
+        <ul class="comuns">
+          {comuns.map((c) => <li>{c}</li>)}
+        </ul>
+      </section>
+
+      <section aria-labelledby="t-avisos">
+        <h2 id="t-avisos">Antes de decidir, saiba que</h2>
+        <ul class="comuns">
+          <li>
+            SEO, cookies e Google Analytics ainda não existem em nenhum: entram só no escolhido (Etapa 3). Por isso o Lighthouse dá
+            58 em SEO; as páginas de teste estão marcadas para o Google não indexar.
+          </li>
+          <li>
+            Bairros, taxa, tempo de entrega, pedido mínimo, horário e formas de pagamento ainda precisam da confirmação da loja (10
+            marcas [CONFIRMAR] no código). Não travam a escolha, travam a publicação.
+          </li>
+          <li>As fotos são as do catálogo e do Instagram, recortadas. Fotos reais dos lanches melhorariam qualquer um dos quatro.</li>
+          <li>Os pesos são do primeiro carregamento no celular; as fotos mais abaixo só baixam quando a pessoa rola até elas.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="rodape">
+      <p>Prints de 31/10 e 01/11/2026 em 390 × 844 (celular) e 1440 × 900 (computador), com a loja aberta às 21h30.</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --fundo: oklch(0.975 0.004 90);
+    --superficie: oklch(1 0 0);
+    --tinta: oklch(0.2 0.015 60);
+    --tinta-2: oklch(0.42 0.012 60);
+    --linha: oklch(0.88 0.006 80);
+    --mostarda: oklch(0.81 0.155 80);
+    --margem: max(1rem, calc((100vw - 72rem) / 2));
+    color-scheme: light;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  body {
+    background: var(--fundo);
+    color: var(--tinta);
+    font: 400 1rem/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--tinta);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .topo {
+    padding: 3rem var(--margem) 2rem;
+  }
+
+  .marca {
+    font-weight: 700;
+    color: var(--tinta-2);
+  }
+
+  h1 {
+    margin-top: 0.5rem;
+    font-size: clamp(2.25rem, 7vw, 4rem);
+    letter-spacing: -0.03em;
+  }
+
+  .lead {
+    max-width: 62ch;
+    margin-top: 1rem;
+    font-size: 1.125rem;
+    text-wrap: pretty;
+  }
+
+  .atalhos {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 0;
+  }
+
+  .atalhos a {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: 100%;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid var(--linha);
+    background: var(--superficie);
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+
+  .atalhos a:hover {
+    border-color: var(--tinta);
+  }
+
+  .atalho-frase {
+    display: block;
+    color: var(--tinta-2);
+    font-size: 0.9375rem;
+  }
+
+  .num {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    background: var(--tinta);
+    color: var(--superficie);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    vertical-align: 0.15em;
+  }
+
+  main > section {
+    padding: 2.5rem var(--margem);
+    border-top: 1px solid var(--linha);
+  }
+
+  main h2 {
+    font-size: clamp(1.6rem, 4vw, 2.25rem);
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+  }
+
+  .tabela-rolagem {
+    overflow-x: auto;
+    border: 1px solid var(--linha);
+    border-radius: 0.75rem;
+    background: var(--superficie);
+  }
+
+  table {
+    width: 100%;
+    min-width: 56rem;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--linha);
+  }
+
+  thead th {
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  tbody th {
+    width: 11rem;
+    color: var(--tinta-2);
+    font-weight: 700;
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  .layout-cabeca {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .layout-cabeca h2 {
+    margin: 0;
+  }
+
+  .layout-cabeca p {
+    color: var(--tinta-2);
+    font-size: 1.0625rem;
+  }
+
+  .abrir {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    background: var(--tinta);
+    color: var(--superficie);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .abrir:hover {
+    background: oklch(0.32 0.015 60);
+  }
+
+  .prints {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .prints figure {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .prints img {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--linha);
+    box-shadow: 0 0.5rem 1.5rem -1rem oklch(0.2 0.015 60 / 0.4);
+  }
+
+  .print-computador {
+    grid-column: 1 / -1;
+  }
+
+  figcaption {
+    font-size: 0.875rem;
+    color: var(--tinta-2);
+  }
+
+  @media (min-width: 64rem) {
+    .prints {
+      grid-template-columns: 15rem 15rem minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+
+    .print-computador {
+      grid-column: auto;
+    }
+  }
+
+  .avaliacao {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1.5rem 3rem;
+    margin-top: 2rem;
+  }
+
+  .avaliacao h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .avaliacao ul,
+  .comuns {
+    display: grid;
+    gap: 0.5rem;
+    padding-left: 1.2rem;
+    max-width: 68ch;
+  }
+
+  .falta {
+    margin-top: 0.75rem;
+    color: var(--tinta-2);
+    font-size: 0.9375rem;
+  }
+
+  .recomendacao {
+    background: var(--mostarda);
+  }
+
+  .recomendacao p {
+    max-width: 68ch;
+    font-size: 1.0625rem;
+  }
+
+  .recomendacao p + p {
+    margin-top: 0.75rem;
+  }
+
+  .rodape {
+    padding: 2rem var(--margem) 3rem;
+    border-top: 1px solid var(--linha);
+    color: var(--tinta-2);
+    font-size: 0.875rem;
+  }
+</style>
